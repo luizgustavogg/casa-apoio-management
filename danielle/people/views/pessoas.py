@@ -8,9 +8,17 @@ class PessoasView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        search_query = self.request.GET.get('q', '').strip()
         
         # Buscar todas as pessoas
         pessoas = Person.objects.all().order_by('-created_at')
+        if search_query:
+            pessoas = pessoas.filter(
+                Q(name__icontains=search_query)
+                | Q(cpf__icontains=search_query)
+                | Q(email__icontains=search_query)
+            )
         
         # Estatísticas
         total_pessoas = pessoas.count()
@@ -24,6 +32,7 @@ class PessoasView(TemplateView):
             'masculino': masculino,
             'feminino': feminino,
             'outro': outro,
+            'search_query': search_query,
         })
         
         return context

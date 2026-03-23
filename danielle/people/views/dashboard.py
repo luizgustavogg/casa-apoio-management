@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.db.models import Count, Q
 from django.utils import timezone
@@ -17,6 +16,21 @@ class DashboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Busca rápida na tela do dashboard (pessoas + check-ins)
+        search_query = self.request.GET.get("q", "").strip()
+        people_search_results = []
+        checkin_search_results = []
+
+        if search_query:
+            people_search_results = Person.objects.filter(
+                name__icontains=search_query
+            ).order_by("name")[:12]
+
+            checkin_search_results = Checkin.objects.filter(
+                Q(person__name__icontains=search_query)
+                | Q(companion__name__icontains=search_query)
+            ).select_related("person", "companion").order_by("-created_at")[:12]
 
         # Contadores gerais
         total_people = Person.objects.count()
@@ -75,12 +89,12 @@ class DashboardView(TemplateView):
         for key, count in treatment_data.items():
             percentage = (count / max_treatment * 100) if max_treatment > 0 else 0
             treatment_labels = {
-                "chemotherapy": ("Quimioterapia", "bi-capsule"),
-                "radiotherapy": ("Radioterapia", "bi-radioactive"),
-                "surgery": ("Cirurgia", "bi-bandaid"),
-                "exams": ("Exames", "bi-hospital"),
-                "appointment": ("Consultas", "bi-calendar-check"),
-                "other": ("Outros", "bi-question-circle"),
+                "chemotherapy": ("Quimioterapia", "fa-capsules"),
+                "radiotherapy": ("Radioterapia", "fa-radiation"),
+                "surgery": ("Cirurgia", "fa-kit-medical"),
+                "exams": ("Exames", "fa-stethoscope"),
+                "appointment": ("Consultas", "fa-calendar-check"),
+                "other": ("Outros", "fa-circle-question"),
             }
             label, icon = treatment_labels[key]
             treatment_with_percentage.append({
@@ -125,12 +139,12 @@ class DashboardView(TemplateView):
         
         for idx, item in enumerate(checkin_reasons):
             reason_map = {
-                'patient': '👤 Paciente',
-                'companion': '👥 Acompanhante',
-                'professional': '👨‍⚕️ Profissional',
-                'voluntary': '🤝 Voluntário',
-                'visitor': '🚶 Visitante',
-                'other': '❓ Outro'
+                'patient': 'Paciente',
+                'companion': 'Acompanhante',
+                'professional': 'Profissional',
+                'voluntary': 'Voluntário',
+                'visitor': 'Visitante',
+                'other': 'Outro'
             }
             checkin_labels.append(reason_map.get(item['reason'], item['reason']))
             checkin_data.append(item['count'])
@@ -157,6 +171,9 @@ class DashboardView(TemplateView):
                 "colors_checkin": json.dumps(colors_checkin),
                 "treatment_counts": json.dumps([item['count'] for item in treatment_with_percentage]),
                 "treatment_labels": json.dumps([item['label'] for item in treatment_with_percentage]),
+                "search_query": search_query,
+                "people_search_results": people_search_results,
+                "checkin_search_results": checkin_search_results,
             }
         )
 
