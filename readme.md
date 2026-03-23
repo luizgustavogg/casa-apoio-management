@@ -36,7 +36,6 @@
 - > python manage.py loaddata people/seed/home-services.json
 - > python manage.py loaddata people/seed/professional-services.json
 
-
 ### Test and coverage
 
 - > pytest
@@ -57,37 +56,37 @@
 ### Use MySQL (optional)
 
 - PowerShell:
-    - > $env:USE_MYSQL="1"
-    - > $env:MYSQL_DATABASE="casa_apoio_management"
-    - > $env:MYSQL_USER="root"
-    - > $env:MYSQL_PASSWORD="your_password"
-    - > $env:MYSQL_HOST="127.0.0.1"
-    - > $env:MYSQL_PORT="3306"
-    - > python manage.py migrate
-    - > python manage.py runserver
+  - > $env:USE_MYSQL="1"
+  - > $env:MYSQL_DATABASE="casa_apoio_management"
+  - > $env:MYSQL_USER="root"
+  - > $env:MYSQL_PASSWORD="your_password"
+  - > $env:MYSQL_HOST="127.0.0.1"
+  - > $env:MYSQL_PORT="3306"
+  - > python manage.py migrate
+  - > python manage.py runserver
 
 - CMD:
-    - > set USE_MYSQL=1
-    - > set MYSQL_DATABASE=casa_apoio_management
-    - > set MYSQL_USER=root
-    - > set MYSQL_PASSWORD=your_password
-    - > set MYSQL_HOST=127.0.0.1
-    - > set MYSQL_PORT=3306
-    - > python manage.py migrate
-    - > python manage.py runserver
+  - > set USE_MYSQL=1
+  - > set MYSQL_DATABASE=casa_apoio_management
+  - > set MYSQL_USER=root
+  - > set MYSQL_PASSWORD=your_password
+  - > set MYSQL_HOST=127.0.0.1
+  - > set MYSQL_PORT=3306
+  - > python manage.py migrate
+  - > python manage.py runserver
 
 ### Rotas
 
 - Users
-    - `POST /users/` -> Create new user (username,password,email)
-    - `POST /login/` -> Create token (username,password)
+  - `POST /users/` -> Create new user (username,password,email)
+  - `POST /login/` -> Create token (username,password)
 - People
-    - `GET /api/v1/people/` -> List 12 card people.
-    - `POST /api/v1/people/` -> Create new person.
-    - `GET /api/v1/people/<int:id>/` -> List person by id.
-    - `PUT /api/v1/people/<int:id>/` -> Replace all mandatory fields. plus fields in request.
-    - `Patch /api/v1/people/<int:id>/` -> Replace only fields in request.
-    - `Delete /api/v1/people/<int:id>/` -> Delete person by ID
+  - `GET /api/v1/people/` -> List 12 card people.
+  - `POST /api/v1/people/` -> Create new person.
+  - `GET /api/v1/people/<int:id>/` -> List person by id.
+  - `PUT /api/v1/people/<int:id>/` -> Replace all mandatory fields. plus fields in request.
+  - `Patch /api/v1/people/<int:id>/` -> Replace only fields in request.
+  - `Delete /api/v1/people/<int:id>/` -> Delete person by ID
 
 ### API docs (drf-spectacular)
 
@@ -107,19 +106,19 @@
   - Serviços da casa
   - Vagas sociais
 
-
 ## Steps done
 
 ### Models
+
 - Create people app
 - Add People app in settings
 - Create the following models:
-    - Base
-    - Person
-    - Checkin
-    - Checkout
-    - HomeServices
-    - ProfessionalServices
+  - Base
+  - Person
+  - Checkin
+  - Checkout
+  - HomeServices
+  - ProfessionalServices
 - Add verbose name to models
 - Add help text to models
 - Add blank and null, if necessary
@@ -128,6 +127,7 @@
 - Add formatted_field methods to after deserialization
 
 ### Admin
+
 - Register model to admin
 - Customize section fields
 - Customize list display
@@ -137,6 +137,7 @@
 - Customize collapse section fields
 
 ### Settings
+
 - Add Authentication
 - Add Permission
 - Add Time Zone
