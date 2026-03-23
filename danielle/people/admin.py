@@ -4,6 +4,7 @@ from people.models import Person
 from people.models import Checkout
 from people.models import HomeServices
 from people.models import ProfessionalServices
+from people.models import HouseConfiguration
 
 admin.site.site_header = "Gestão de pessoas"
 admin.site.site_title = "Gestão fácil!"
@@ -72,8 +73,40 @@ class ProfessionalServicesAdmin(admin.ModelAdmin):
     list_display = ('professional', 'title', 'description', 'created_at')
 
 
+
+
+class HouseConfigurationAdmin(admin.ModelAdmin):
+    list_display = ('max_capacity', 'current_occupancy', 'available_vacancies')
+    
+    def current_occupancy(self, obj):
+        from people.models import HouseConfiguration
+        return HouseConfiguration.get_current_occupancy()
+    current_occupancy.short_description = 'Ocupação Atual'
+    
+    def available_vacancies(self, obj):
+        from people.models import HouseConfiguration
+        return HouseConfiguration.get_available_vacancies()
+    available_vacancies.short_description = 'Vagas Disponíveis'
+    
+    readonly_fields = ('current_occupancy', 'available_vacancies', 'created_at', 'updated_at')
+    fieldsets = [
+        ('Configuração de Capacidade', {
+            'fields': ['max_capacity']
+        }),
+        ('Informações de Ocupação (somente leitura)', {
+            'fields': ['current_occupancy', 'available_vacancies'],
+            'classes': ('collapse',)
+        }),
+        ('Timestamps', {
+            'fields': ['created_at', 'updated_at'],
+            'classes': ('collapse',)
+        })
+    ]
+
+
 admin.site.register(Person, PersonAdmin)
 admin.site.register(Checkin, CheckinAdmin)
 admin.site.register(Checkout, CheckoutAdmin)
 admin.site.register(HomeServices, HomeServicesAdmin)
 admin.site.register(ProfessionalServices, ProfessionalServicesAdmin)
+admin.site.register(HouseConfiguration, HouseConfigurationAdmin)

@@ -554,7 +554,7 @@
             <div class="kpi-card primary"><i class="bi bi-people kpi-icon"></i><div class="kpi-value">{{ total_people }}</div><div class="kpi-label">Total de Pessoas</div></div>
             <div class="kpi-card info"><i class="bi bi-check-circle kpi-icon"></i><div class="kpi-value">{{ total_active_checkins }}</div><div class="kpi-label">Check-ins Ativos</div></div>
             <div class="kpi-card success"><i class="bi bi-graph-up kpi-icon"></i><div class="kpi-value">{{ total_checkins }}</div><div class="kpi-label">Total Check-ins</div></div>
-            <div class="kpi-card warning"><i class="bi bi-percent kpi-icon"></i><div class="kpi-value">{{ occupation_rate }}%</div><div class="kpi-label">Taxa de Ocupação</div></div>
+            <div class="kpi-card warning"><i class="bi bi-percent kpi-icon"></i><div class="kpi-value">{{ capacity_rate }}%</div><div class="kpi-label">Taxa de Ocupação</div></div>
             <div class="kpi-card danger"><i class="bi bi-ticket-detailed kpi-icon"></i><div class="kpi-value">{{ social_vacancies }}</div><div class="kpi-label">Vagas Sociais</div></div>
             <div class="kpi-card info"><i class="bi bi-house-heart kpi-icon"></i><div class="kpi-value">{{ home_services_count }}</div><div class="kpi-label">Serviços Casa</div></div>
         </div>
@@ -586,8 +586,8 @@
                 <div class="stat-row"><span class="stat-label">Novos Check-ins</span><span class="stat-value">0 <span class="badge badge-up"><i class="bi bi-arrow-up"></i> 0%</span></span></div>
                 <div class="stat-row"><span class="stat-label">Saídas</span><span class="stat-value">0</span></div>
                 <div class="progress-box">
-                    <div class="progress-label"><span>Taxa de Ocupação</span><span style="color: var(--primary); font-weight: 700;">{{ occupation_rate }}%</span></div>
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: {{ occupation_rate }}%"></div></div>
+                    <div class="progress-label"><span>Taxa de Ocupação</span><span style="color: var(--primary); font-weight: 700;">{{ capacity_rate }}%</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: {{ capacity_rate }}%"></div></div>
                 </div>
             </div>
         </div>

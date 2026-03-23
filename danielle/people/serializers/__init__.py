@@ -3,5 +3,6 @@ from .checkin import PatientCompanionCheckinSerializer
 from .person import PersonSerializer
 from .user import UserSerializer
 from .checkout import CheckoutSerializer
+from .house_configuration import HouseConfigurationSerializer
 from .home_services import HomeServicesSerializer
 from .professional_services import ProfessionalServicesSerializer
