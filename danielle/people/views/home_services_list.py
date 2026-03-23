@@ -8,9 +8,13 @@ class HomeServicesView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        search_query = self.request.GET.get('q', '').strip()
         
         # Buscar todos os serviços
         servicos = HomeServices.objects.all().select_related('person').order_by('-created_at')
+        if search_query:
+            servicos = servicos.filter(person__name__icontains=search_query)
         
         # Estatísticas
         total_servicos = servicos.count()
@@ -30,6 +34,7 @@ class HomeServicesView(TemplateView):
             'jantar': jantar,
             'banho': banho,
             'pernoite': pernoite,
+            'search_query': search_query,
         })
         
         return context

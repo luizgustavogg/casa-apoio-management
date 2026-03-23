@@ -9,9 +9,17 @@ class CheckinsView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        search_query = self.request.GET.get('q', '').strip()
         
         # Buscar todos os check-ins
         checkins = Checkin.objects.all().select_related('person', 'companion').order_by('-created_at')
+        if search_query:
+            checkins = checkins.filter(
+                Q(person__name__icontains=search_query)
+                | Q(companion__name__icontains=search_query)
+                | Q(reason__icontains=search_query)
+            )
         
         # Estatísticas
         total_checkins = checkins.count()
@@ -37,6 +45,7 @@ class CheckinsView(TemplateView):
             'voluntario': voluntario,
             'visitante': visitante,
             'outro': outro,
+            'search_query': search_query,
         })
         
         return context
