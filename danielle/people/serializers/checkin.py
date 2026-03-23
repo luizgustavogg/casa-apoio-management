@@ -20,6 +20,13 @@ class CheckinSerializer(serializers.ModelSerializer):
                 if not data['companion']:
                     raise serializers.ValidationError(
                         {'companion': 'Campo acompanhante não pode ser nulo.'})
+        
+        # check house capacity
+        from people.models import HouseConfiguration
+        if HouseConfiguration.is_at_full_capacity():
+            raise serializers.ValidationError(
+                {'detail': 'Casa de apoio em capacidade máxima. Não há vagas disponíveis no momento.'})
+        
         return data
 
     class Meta:

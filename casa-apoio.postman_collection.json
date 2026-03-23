@@ -1,0 +1,714 @@
+{
+  "info": {
+    "name": "Casa de Apoio - Management API",
+    "_postman_id": "casa-apoio-management-v1",
+    "description": "Complete API collection for Casa de Apoio Management System.\n\nSetup:\n1. Create an environment with variable `base_url` = http://127.0.0.1:8000\n2. Run 'Login' to obtain a token\n3. The token is saved automatically to the `token` environment variable",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"email\": \"admin@casaapoio.com\",\n  \"password\": \"Admin@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/",
+              "host": ["{{base_url}}"],
+              "path": ["users", ""]
+            },
+            "description": "Creates a new user. Password rules: min 8 chars, 1 uppercase, 1 digit, 1 special char."
+          }
+        },
+        {
+          "name": "Login (get token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) {",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "    pm.environment.set('token', json.token);",
+                  "    console.log('Token saved:', json.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/login/",
+              "host": ["{{base_url}}"],
+              "path": ["login", ""]
+            },
+            "description": "Authenticates the user and returns a token. The test script automatically saves the token to `token` collection variable."
+          }
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/1/",
+              "host": ["{{base_url}}"],
+              "path": ["users", "1", ""]
+            },
+            "description": "Retrieves a user by ID."
+          }
+        }
+      ]
+    },
+    {
+      "name": "House Configuration",
+      "description": "Manage the support house capacity and monitor occupancy in real time.",
+      "item": [
+        {
+          "name": "Get Occupancy Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/house-configuration/occupancy_status/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "house-configuration", "occupancy_status", ""]
+            },
+            "description": "Returns current occupancy status: max capacity, current occupancy, available vacancies, and whether the house is at full capacity."
+          }
+        },
+        {
+          "name": "List Configuration",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/house-configuration/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "house-configuration", ""]
+            }
+          }
+        },
+        {
+          "name": "Update Max Capacity",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"max_capacity\": 25\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/house-configuration/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "house-configuration", "1", ""]
+            },
+            "description": "Updates the maximum capacity of the support house. Uses singleton pk=1."
+          }
+        },
+        {
+          "name": "Partial Update Max Capacity",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"max_capacity\": 30\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/house-configuration/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "house-configuration", "1", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "People",
+      "description": "CRUD for people registered in the system (patients, companions, professionals, etc.).",
+      "item": [
+        {
+          "name": "List People",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/people/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "people", ""]
+            }
+          }
+        },
+        {
+          "name": "Search People by Name",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/people/?search=João",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "people", ""],
+              "query": [
+                { "key": "search", "value": "João" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Person",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"João da Silva\",\n  \"mother_name\": \"Maria da Silva\",\n  \"born_date\": \"1985-03-15\",\n  \"gender\": \"M\",\n  \"cpf\": \"12345678901\",\n  \"email\": \"joao.silva@email.com\",\n  \"ddd_private_phone\": \"11\",\n  \"private_phone\": \"999999999\",\n  \"address_line_1\": \"Rua das Flores, 123\",\n  \"neighbourhood\": \"Centro\",\n  \"city\": \"São Paulo\",\n  \"state\": \"SP\",\n  \"postal_code\": \"01001000\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/people/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "people", ""]
+            },
+            "description": "Creates a new person. Only `name` is required."
+          }
+        },
+        {
+          "name": "Create Person (minimal)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Maria Oliveira\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/people/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "people", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Person",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/people/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "people", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "Update Person",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"novo.email@email.com\",\n  \"ddd_private_phone\": \"21\",\n  \"private_phone\": \"988887777\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/people/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "people", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "Delete Person",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/people/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "people", "1", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Check-in",
+      "description": "Register arrivals. Creating a check-in when house is at full capacity will return HTTP 400.",
+      "item": [
+        {
+          "name": "List Check-ins",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/checkins/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "checkins", ""]
+            }
+          }
+        },
+        {
+          "name": "List Active Check-ins only",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/checkins/?active=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "checkins", ""],
+              "query": [
+                { "key": "active", "value": "true" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Check-ins by Person Name",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/checkins/?search=João",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "checkins", ""],
+              "query": [
+                { "key": "search", "value": "João" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Check-in (professional / voluntary / visitor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"person\": 1,\n  \"reason\": \"professional\",\n  \"observation\": \"Médico voluntário\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/checkins/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "checkins", ""]
+            },
+            "description": "reason options: patient | companion | professional | voluntary | visitor | other\n\nIf house is at full capacity, returns HTTP 400 with: { \"detail\": \"Casa de apoio em capacidade máxima. Não há vagas disponíveis no momento.\" }"
+          }
+        },
+        {
+          "name": "Create Check-in (patient with companion)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"person\": 1,\n  \"reason\": \"patient\",\n  \"companion\": 2,\n  \"chemotherapy\": true,\n  \"radiotherapy\": false,\n  \"surgery\": false,\n  \"exams\": false,\n  \"appointment\": true,\n  \"other\": false,\n  \"ca_number\": \"CA-001\",\n  \"social_vacancy\": true,\n  \"observation\": \"Paciente em tratamento quimioterápico\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/checkins/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "checkins", ""]
+            },
+            "description": "Patient check-in — companion field is required when reason is 'patient'."
+          }
+        },
+        {
+          "name": "Get Check-in",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/checkins/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "checkins", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "Deactivate Check-in (PATCH active=false)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"active\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/checkins/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "checkins", "1", ""]
+            },
+            "description": "Manually deactivates a check-in. Prefer using the Check-out endpoint to properly record the departure."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Check-out",
+      "description": "Register departures. Creating a checkout automatically sets the related check-in to active=false, freeing up a vacancy.",
+      "item": [
+        {
+          "name": "List Check-outs",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/checkouts/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "checkouts", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Check-out",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"checkin\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/checkouts/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "checkouts", ""]
+            },
+            "description": "Creates a checkout for the given check-in ID.\n- The referenced check-in must have active=true.\n- After successful checkout, the check-in is automatically set to active=false, freeing the vacancy."
+          }
+        },
+        {
+          "name": "Get Check-out",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/checkouts/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "checkouts", "1", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Patient-Companion Check-in",
+      "description": "Link a patient to their companion.",
+      "item": [
+        {
+          "name": "List Patient-Companion Check-ins",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/patient_companion_checkin/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "patient_companion_checkin", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Patient-Companion Check-in",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient\": 1,\n  \"companion\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/patient_companion_checkin/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "patient_companion_checkin", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Patient-Companion Check-in",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/patient_companion_checkin/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "patient_companion_checkin", "1", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Home Services",
+      "description": "Track meals, showers, and overnight stays per person.",
+      "item": [
+        {
+          "name": "List Home Services",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/home_services/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "home_services", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Home Service",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"person\": 1,\n  \"breakfast\": true,\n  \"lunch\": true,\n  \"snack\": false,\n  \"dinner\": true,\n  \"shower\": true,\n  \"sleep\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/home_services/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "home_services", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Home Service",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/home_services/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "home_services", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "Update Home Service",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"breakfast\": false,\n  \"snack\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/home_services/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "home_services", "1", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Professional Services",
+      "description": "Log services provided by professionals to the house.",
+      "item": [
+        {
+          "name": "List Professional Services",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/professional_services/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "professional_services", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Professional Service",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"professional\": 1,\n  \"title\": \"Medical consultation\",\n  \"description\": \"Consulta oncológica realizada com paciente João.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/professional_services/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "professional_services", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Professional Service",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/professional_services/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "professional_services", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "Update Professional Service",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Follow-up consultation\",\n  \"description\": \"Retorno oncológico.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/professional_services/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "professional_services", "1", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "API Docs",
+      "description": "Interactive API documentation (no auth required).",
+      "item": [
+        {
+          "name": "OpenAPI Schema (JSON)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/schema/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schema", ""]
+            }
+          }
+        },
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/docs/swagger/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "docs", "swagger", ""]
+            }
+          }
+        },
+        {
+          "name": "ReDoc",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/docs/redoc/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "docs", "redoc", ""]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

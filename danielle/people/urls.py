@@ -7,6 +7,8 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register('people', views.PersonViewSet)
 router.register('checkins', views.CheckinViewSet)
+router.register('checkouts', views.CheckoutViewSet)
+router.register('house-configuration', views.HouseConfigurationViewSet)
 router.register('patient_companion_checkin',
                 views.PatientCompanionCheckinViewSet)
 router.register('home_services', views.HomeServicesViewSet)

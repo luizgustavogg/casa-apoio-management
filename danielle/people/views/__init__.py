@@ -2,6 +2,8 @@ from .person import PersonViewSet
 from .user import UserCreate, UserRetrieve
 from .checkin import CheckinViewSet
 from .checkin import PatientCompanionCheckinViewSet
+from .checkout import CheckoutViewSet
+from .house_configuration import HouseConfigurationViewSet
 from .token import CustomObtainAuthToken
 from .home_services import HomeServicesViewSet
 from .professional_service import ProfessionalServicesViewSet

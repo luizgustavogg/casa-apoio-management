@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
-from people.models import Person, Checkin, HomeServices
+from people.models import Person, Checkin, HomeServices, HouseConfiguration
 import json
 
 
@@ -23,7 +23,18 @@ class DashboardView(TemplateView):
         total_active_checkins = Checkin.objects.filter(active=True).count()
         total_checkins = Checkin.objects.count()
         
-        # Taxa de ocupação estimada
+        # Informações de capacidade da casa
+        house_config = HouseConfiguration.get_config()
+        max_capacity = house_config.max_capacity
+        available_vacancies = HouseConfiguration.get_available_vacancies()
+        is_at_full_capacity = HouseConfiguration.is_at_full_capacity()
+        capacity_rate = (
+            (total_active_checkins / max_capacity * 100)
+            if max_capacity > 0
+            else 0
+        )
+        
+        # Taxa de ocupação estimada (por número de pessoas)
         occupation_rate = (
             (total_active_checkins / max(total_people, 1)) * 100
             if total_people > 0
@@ -130,6 +141,10 @@ class DashboardView(TemplateView):
                 "total_active_checkins": total_active_checkins,
                 "total_checkins": total_checkins,
                 "occupation_rate": int(occupation_rate),
+                "max_capacity": max_capacity,
+                "available_vacancies": available_vacancies,
+                "is_at_full_capacity": is_at_full_capacity,
+                "capacity_rate": int(capacity_rate),
                 "gender_distribution": list(gender_distribution),
                 "checkin_reasons": list(checkin_reasons),
                 "treatment_data": treatment_with_percentage,
