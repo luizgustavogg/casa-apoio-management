@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-ins - Casa de Apoio</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #1abc9c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --bg: #f5f6fa;
+            --sidebar-width: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background-color: var(--bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--dark); overflow-x: hidden; }
+
+        body.sidebar-open { overflow: hidden; }
+
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 999; }
+        body.sidebar-open .sidebar-overlay { opacity: 1; pointer-events: auto; }
+
+        .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100vh; background: linear-gradient(180deg, var(--dark) 0%, #34495e 100%); z-index: 1000; display: flex; flex-direction: column; padding: 18px 14px; box-shadow: 0 18px 40px rgba(44, 62, 80, 0.24); }
+        .sidebar-brand { display: flex; align-items: center; gap: 12px; color: #fff; padding: 10px 12px 20px; border-bottom: 1px solid rgba(236, 240, 241, 0.12); }
+        .sidebar-brand-badge { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #4da3ff, #2f80ed); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .sidebar-brand-text { display: flex; flex-direction: column; gap: 2px; }
+        .sidebar-brand-title { font-size: 0.95rem; font-weight: 700; }
+        .sidebar-brand-subtitle { font-size: 0.75rem; color: rgba(236, 240, 241, 0.72); }
+        .sidebar-icons { display: flex; flex-direction: column; gap: 8px; padding: 18px 0; height: 100%; }
+        .sidebar-section-title { color: rgba(236, 240, 241, 0.55); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; padding: 12px 12px 8px; text-transform: uppercase; }
+        .sidebar-icon { width: 100%; min-height: 50px; border-radius: 12px; display: flex; align-items: center; gap: 12px; color: #ecf0f1; font-size: 1rem; transition: all 0.3s ease; text-decoration: none; padding: 0 14px; font-weight: 600; }
+        .sidebar-icon i { width: 22px; font-size: 1.25rem; text-align: center; flex-shrink: 0; }
+        .sidebar-icon span { white-space: nowrap; }
+        .sidebar-icon:hover { background: rgba(52, 152, 219, 0.2); color: #3498db; }
+        .sidebar-icon.active { background: linear-gradient(135deg, #4da3ff, #2f80ed); color: #fff; box-shadow: 0 10px 18px rgba(47, 128, 237, 0.28); }
+
+        .main-content { margin-left: var(--sidebar-width); padding: 24px; display: flex; flex-direction: column; gap: 20px; min-height: 100vh; }
+        .main-topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: white; padding: 14px 18px; border-radius: 14px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
+        .menu-toggle { width: 42px; height: 42px; border: 0; border-radius: 10px; background: transparent; color: #5b6574; font-size: 1.35rem; cursor: pointer; display: none; }
+        .menu-toggle:hover { background: #eef3f8; }
+        .topbar-meta { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .topbar-meta-text { min-width: 0; }
+        .topbar-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #8b97a8; font-weight: 700; }
+        .topbar-title { font-size: 1rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .navbar-top { background: white; padding: 20px 30px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: center; }
+        .navbar-title { font-size: 1.8rem; font-weight: 700; }
+        .navbar-subtitle { font-size: 0.9rem; color: #7f8c8d; margin-top: 5px; }
+        .header-info { display: flex; align-items: center; gap: 15px; }
+        .user-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
+        .kpi-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; border-left: 4px solid; }
+        .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
+        .kpi-card.primary { border-left-color: var(--primary); }
+        .kpi-card.success { border-left-color: var(--success); }
+        .kpi-card.warning { border-left-color: var(--warning); }
+        .kpi-card.danger { border-left-color: var(--danger); }
+        .kpi-card.info { border-left-color: var(--info); }
+        .kpi-value { font-size: 2rem; font-weight: 700; color: var(--dark); }
+        .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #95a5a6; margin-top: 8px; font-weight: 600; }
+
+        .table-container { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); overflow-x: auto; }
+        .table-title { font-size: 1.1rem; font-weight: 600; color: var(--dark); margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--light); }
+        table { width: 100%; border-collapse: collapse; }
+        thead th { background: var(--light); padding: 15px; text-align: left; font-weight: 600; color: var(--dark); border-bottom: 2px solid #ddd; }
+        tbody td { padding: 15px; border-bottom: 1px solid var(--light); }
+        tbody tr:hover { background: rgba(102, 126, 234, 0.05); }
+
+        .reason-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .reason-patient { background: #d1ecf1; color: #0c5460; }
+        .reason-companion { background: #d4edda; color: #155724; }
+        .reason-professional { background: #cfe2ff; color: #084298; }
+        .reason-voluntary { background: #e2e3e5; color: #383d41; }
+        .reason-visitor { background: #f8d7da; color: #721c24; }
+        .reason-other { background: #fff3cd; color: #856404; }
+
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        .status-active { background: #d4edda; color: #155724; }
+        .status-inactive { background: #f8d7da; color: #721c24; }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+            body.sidebar-open .sidebar { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 15px; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .navbar-top { flex-direction: column; text-align: center; gap: 15px; }
+            .main-topbar { padding: 12px 14px; }
+            .kpi-value { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" data-sidebar-close></div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-badge"><i class="bi bi-house-heart"></i></div>
+            <div class="sidebar-brand-text">
+                <div class="sidebar-brand-title">Casa de Apoio</div>
+                <div class="sidebar-brand-subtitle">Painel administrativo</div>
+            </div>
+        </div>
+        <div class="sidebar-icons">
+            <div class="sidebar-section-title">Navegação</div>
+            <a href="/dashboard" class="sidebar-icon" title="Dashboard" data-page="dashboard"><i class="bi bi-graph-up"></i><span>Dashboard</span></a>
+            <a href="/pessoas" class="sidebar-icon" title="Pessoas" data-page="pessoas"><i class="bi bi-people"></i><span>Pessoas</span></a>
+            <a href="/checkins" class="sidebar-icon active" title="Check-ins" data-page="checkins"><i class="bi bi-check-circle"></i><span>Check-ins</span></a>
+            <a href="/home-services" class="sidebar-icon" title="Utilizações" data-page="home_services"><i class="bi bi-hospital"></i><span>Utilizações</span></a>
+            <a href="/admin/" class="sidebar-icon" title="Configurações" data-page="admin"><i class="bi bi-gear"></i><span>Configurações</span></a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="main-topbar">
+            <div class="topbar-meta">
+                <button class="menu-toggle" type="button" aria-label="Abrir menu" data-sidebar-toggle>
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="topbar-meta-text">
+                    <div class="topbar-label">Painel</div>
+                    <div class="topbar-title">Controle de Check-ins</div>
+                </div>
+            </div>
+            <div class="header-info">
+                <span style="color: #7f8c8d; font-size: 0.9rem;"><i class="bi bi-calendar3"></i> {{ "now"|date:"d/m/Y" }}</span>
+                <div class="user-avatar"><i class="bi bi-house-heart"></i></div>
+            </div>
+        </div>
+        <!-- Top Navbar -->
+        <div class="navbar-top">
+            <div>
+                <div class="navbar-title">Check-ins</div>
+                <div class="navbar-subtitle">Registros de entrada | Casa de Apoio</div>
+            </div>
+            <div class="topbar-label">Listagem</div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card primary">
+                <div class="kpi-value">{{ total_checkins }}</div>
+                <div class="kpi-label">Total de Check-ins</div>
+            </div>
+            <div class="kpi-card success">
+                <div class="kpi-value">{{ ativos }}</div>
+                <div class="kpi-label">Ativos</div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-value">{{ inativos }}</div>
+                <div class="kpi-label">Inativos</div>
+            </div>
+            <div class="kpi-card info">
+                <div class="kpi-value">{{ paciente }}</div>
+                <div class="kpi-label">Pacientes</div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-value">{{ acompanhante }}</div>
+                <div class="kpi-label">Acompanhantes</div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div class="table-title">Últimos Check-ins</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pessoa</th>
+                        <th>Tipo</th>
+                        <th>Acompanhante</th>
+                        <th>Status</th>
+                        <th>Data de Entrada</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for checkin in checkins %}
+                    <tr>
+                        <td><strong>{{ checkin.person_name }}</strong></td>
+                        <td>
+                            {% if checkin.reason == 'patient' %}
+                                <span class="reason-badge reason-patient">👤 Paciente</span>
+                            {% elif checkin.reason == 'companion' %}
+                                <span class="reason-badge reason-companion">👥 Acompanhante</span>
+                            {% elif checkin.reason == 'professional' %}
+                                <span class="reason-badge reason-professional">🏥 Profissional</span>
+                            {% elif checkin.reason == 'voluntary' %}
+                                <span class="reason-badge reason-voluntary">🤝 Voluntário</span>
+                            {% elif checkin.reason == 'visitor' %}
+                                <span class="reason-badge reason-visitor">🚪 Visitante</span>
+                            {% else %}
+                                <span class="reason-badge reason-other">❓ Outro</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ checkin.companion_name|default:"—" }}</td>
+                        <td>
+                            {% if checkin.active %}
+                                <span class="status-badge status-active">✓ Ativo</span>
+                            {% else %}
+                                <span class="status-badge status-inactive">✗ Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ checkin.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" style="text-align: center; color: #95a5a6;">Nenhum check-in registrado</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const currentPath = window.location.pathname;
+            const sidebarIcons = document.querySelectorAll('.sidebar-icon');
+            const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
+            const sidebarClose = document.querySelector('[data-sidebar-close]');
+            
+            sidebarIcons.forEach(icon => {
+                const href = icon.getAttribute('href');
+                if (href === '/admin/' ? currentPath.startsWith('/admin') : currentPath === href) {
+                    icon.classList.add('active');
+                } else {
+                    icon.classList.remove('active');
+                }
+
+                icon.addEventListener('click', function() {
+                    body.classList.remove('sidebar-open');
+                });
+            });
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    body.classList.toggle('sidebar-open');
+                });
+            }
+
+            if (sidebarClose) {
+                sidebarClose.addEventListener('click', function() {
+                    body.classList.remove('sidebar-open');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

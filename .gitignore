@@ -1,0 +1,8 @@
+.venv
+myvenv
+__pycache__
+.pytest_cache
+htmlcov
+.coveragerc
+.ipynb_checkpoints
+venv
