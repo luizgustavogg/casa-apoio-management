@@ -31,6 +31,13 @@
 
 ### Run seeds
 
+- Popular o banco e necessario para o dashboard exibir dados realistas.
+- Recomendado para demo do dashboard (dados variados):
+
+- > python manage.py seed_dashboard_data --reset --people 90 --days 60
+
+- Se preferir a carga fixa em JSON, use:
+
 - > python manage.py loaddata people/seed/people.json
 - > python manage.py loaddata people/seed/checkins.json
 - > python manage.py loaddata people/seed/home-services.json
@@ -38,9 +45,9 @@
 
 ### Test and coverage
 
-- > pytest
-- > coverage run -m pytest
-- > coverage html
+- > python -m pytest
+- > python -m coverage run -m pytest
+- > python -m coverage html
 
 ### Run the application
 

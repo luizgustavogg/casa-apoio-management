@@ -54,7 +54,7 @@
         .navbar-subtitle { font-size: 0.9rem; color: #7f8c8d; margin-top: 5px; }
 
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
-        .kpi-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; border-left: 4px solid; }
+        .kpi-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; border-left: 4px solid; position: relative; }
         .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
         .kpi-card.primary { border-left-color: var(--primary); }
         .kpi-card.success { border-left-color: var(--success); }
@@ -63,6 +63,7 @@
         .kpi-card.info { border-left-color: var(--info); }
         .kpi-value { font-size: 2rem; font-weight: 700; color: var(--dark); }
         .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #95a5a6; margin-top: 8px; font-weight: 600; }
+        .kpi-icon { position: absolute; right: 14px; top: 14px; font-size: 2.2rem; opacity: 0.1; }
 
         .search-panel { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
         .search-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -173,22 +174,27 @@
         <!-- KPI Cards -->
         <div class="kpi-grid">
             <div class="kpi-card primary">
+                <i class="fa-solid fa-list-check kpi-icon"></i>
                 <div class="kpi-value">{{ total_checkins }}</div>
                 <div class="kpi-label">Total de Check-ins</div>
             </div>
             <div class="kpi-card success">
+                <i class="fa-solid fa-circle-check kpi-icon"></i>
                 <div class="kpi-value">{{ ativos }}</div>
                 <div class="kpi-label">Ativos</div>
             </div>
             <div class="kpi-card danger">
+                <i class="fa-solid fa-circle-xmark kpi-icon"></i>
                 <div class="kpi-value">{{ inativos }}</div>
                 <div class="kpi-label">Inativos</div>
             </div>
             <div class="kpi-card info">
+                <i class="fa-solid fa-user-injured kpi-icon"></i>
                 <div class="kpi-value">{{ paciente }}</div>
                 <div class="kpi-label">Pacientes</div>
             </div>
             <div class="kpi-card warning">
+                <i class="fa-solid fa-user-group kpi-icon"></i>
                 <div class="kpi-value">{{ acompanhante }}</div>
                 <div class="kpi-label">Acompanhantes</div>
             </div>

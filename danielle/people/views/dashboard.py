@@ -2,7 +2,7 @@ from django.views.generic import TemplateView
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
-from people.models import Person, Checkin, HomeServices, HouseConfiguration
+from people.models import Person, Checkin, Checkout, HomeServices, HouseConfiguration
 import json
 
 
@@ -129,6 +129,38 @@ class DashboardView(TemplateView):
             ).count()
             daily_checkins.append(count)
             labels_7days.append(date.strftime("%d/%m"))
+
+        # Estatisticas rapidas (ultimos 7 dias vs 7 dias anteriores)
+        now = timezone.now()
+        current_7_days_start = now - timedelta(days=7)
+        previous_7_days_start = now - timedelta(days=14)
+
+        new_checkins_7_days = Checkin.objects.filter(
+            created_at__gte=current_7_days_start
+        ).count()
+        previous_checkins_7_days = Checkin.objects.filter(
+            created_at__gte=previous_7_days_start,
+            created_at__lt=current_7_days_start,
+        ).count()
+        checkouts_7_days = Checkout.objects.filter(
+            created_at__gte=current_7_days_start
+        ).count()
+
+        if previous_checkins_7_days > 0:
+            checkin_variation_rate = int(
+                ((new_checkins_7_days - previous_checkins_7_days) / previous_checkins_7_days) * 100
+            )
+        else:
+            checkin_variation_rate = 100 if new_checkins_7_days > 0 else 0
+
+        checkin_trend_direction = "up"
+        if checkin_variation_rate < 0:
+            checkin_trend_direction = "down"
+        elif checkin_variation_rate == 0:
+            checkin_trend_direction = "flat"
+
+        capacity_rate_int = int(capacity_rate)
+        capacity_rate_progress = min(capacity_rate_int, 100)
         
         # Distribuição dos tipos de check-in para gráfico
         checkin_labels = []
@@ -158,12 +190,17 @@ class DashboardView(TemplateView):
                 "max_capacity": max_capacity,
                 "available_vacancies": available_vacancies,
                 "is_at_full_capacity": is_at_full_capacity,
-                "capacity_rate": int(capacity_rate),
+                "capacity_rate": capacity_rate_int,
+                "capacity_rate_progress": capacity_rate_progress,
                 "gender_distribution": list(gender_distribution),
                 "checkin_reasons": list(checkin_reasons),
                 "treatment_data": treatment_with_percentage,
                 "home_services_count": home_services_count,
                 "social_vacancies": social_vacancies,
+                "new_checkins_7_days": new_checkins_7_days,
+                "checkouts_7_days": checkouts_7_days,
+                "checkin_variation_rate": abs(checkin_variation_rate),
+                "checkin_trend_direction": checkin_trend_direction,
                 "daily_checkins_labels": json.dumps(labels_7days),
                 "daily_checkins_data": json.dumps(daily_checkins),
                 "checkin_labels": json.dumps(checkin_labels),

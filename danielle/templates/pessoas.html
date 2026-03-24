@@ -54,7 +54,7 @@
         .navbar-subtitle { font-size: 0.9rem; color: #7f8c8d; margin-top: 5px; }
 
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .kpi-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; border-left: 4px solid; }
+        .kpi-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; border-left: 4px solid; position: relative; }
         .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
         .kpi-card.primary { border-left-color: var(--primary); }
         .kpi-card.success { border-left-color: var(--success); }
@@ -62,6 +62,7 @@
         .kpi-card.info { border-left-color: var(--info); }
         .kpi-value { font-size: 2.5rem; font-weight: 700; color: var(--dark); }
         .kpi-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #95a5a6; margin-top: 10px; font-weight: 600; }
+        .kpi-icon { position: absolute; right: 15px; top: 15px; font-size: 2.5rem; opacity: 0.1; }
 
         .search-panel { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
         .search-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -164,18 +165,22 @@
         <!-- KPI Cards -->
         <div class="kpi-grid">
             <div class="kpi-card primary">
+                <i class="fa-solid fa-users kpi-icon"></i>
                 <div class="kpi-value">{{ total_pessoas }}</div>
                 <div class="kpi-label">Total de Pessoas</div>
             </div>
             <div class="kpi-card success">
+                <i class="fa-solid fa-mars kpi-icon"></i>
                 <div class="kpi-value">{{ masculino }}</div>
                 <div class="kpi-label">Masculino</div>
             </div>
             <div class="kpi-card warning">
+                <i class="fa-solid fa-venus kpi-icon"></i>
                 <div class="kpi-value">{{ feminino }}</div>
                 <div class="kpi-label">Feminino</div>
             </div>
             <div class="kpi-card info">
+                <i class="fa-solid fa-genderless kpi-icon"></i>
                 <div class="kpi-value">{{ outro }}</div>
                 <div class="kpi-label">Outro</div>
             </div>

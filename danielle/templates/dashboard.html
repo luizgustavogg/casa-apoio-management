@@ -540,6 +540,16 @@
             color: #155724;
         }
 
+        .badge-down {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-flat {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
         .progress-box {
             margin-top: 15px;
         }
@@ -804,11 +814,23 @@
             <div class="stat-box">
                 <div class="chart-title">Estatísticas Rápidas</div>
                 <div class="stat-row"><span class="stat-label">Pessoas Ativas</span><span class="stat-value">{{ total_active_checkins }}</span></div>
-                <div class="stat-row"><span class="stat-label">Novos Check-ins</span><span class="stat-value">0 <span class="badge badge-up"><i class="fa-solid fa-arrow-up"></i> 0%</span></span></div>
-                <div class="stat-row"><span class="stat-label">Saídas</span><span class="stat-value">0</span></div>
+                <div class="stat-row">
+                    <span class="stat-label">Novos Check-ins (7 dias)</span>
+                    <span class="stat-value">
+                        {{ new_checkins_7_days }}
+                        {% if checkin_trend_direction == 'up' %}
+                            <span class="badge badge-up"><i class="fa-solid fa-arrow-up"></i> {{ checkin_variation_rate }}%</span>
+                        {% elif checkin_trend_direction == 'down' %}
+                            <span class="badge badge-down"><i class="fa-solid fa-arrow-down"></i> {{ checkin_variation_rate }}%</span>
+                        {% else %}
+                            <span class="badge badge-flat"><i class="fa-solid fa-minus"></i> {{ checkin_variation_rate }}%</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="stat-row"><span class="stat-label">Saídas (7 dias)</span><span class="stat-value">{{ checkouts_7_days }}</span></div>
                 <div class="progress-box">
                     <div class="progress-label"><span>Taxa de Ocupação</span><span style="color: var(--primary); font-weight: 700;">{{ capacity_rate }}%</span></div>
-                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: {{ capacity_rate }}%"></div></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: {{ capacity_rate_progress }}%"></div></div>
                 </div>
             </div>
         </div>
