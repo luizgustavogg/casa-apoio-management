@@ -8,6 +8,7 @@ from .token import CustomObtainAuthToken
 from .home_services import HomeServicesViewSet
 from .professional_service import ProfessionalServicesViewSet
 from .dashboard import DashboardView
+from .reports import OccupancyReportView, OccupancyReportAPIView
 from .pessoas import PessoasView
 from .checkins_list import CheckinsView
 from .home_services_list import HomeServicesView

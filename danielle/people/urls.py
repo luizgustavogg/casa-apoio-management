@@ -16,5 +16,6 @@ router.register('professional_services', views.ProfessionalServicesViewSet)
 # router.register('checkins', views.CheckinViewSet)
 
 urlpatterns = [
+    path('reports/occupancy/', views.OccupancyReportAPIView.as_view(), name='occupancy_report_api'),
     path('', include(router.urls)),
 ]

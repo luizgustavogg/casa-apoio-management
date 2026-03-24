@@ -3,7 +3,7 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 from people.views import (UserCreate, CustomObtainAuthToken, UserRetrieve, DashboardView,
-                          PessoasView, CheckinsView, HomeServicesView)
+                          PessoasView, CheckinsView, HomeServicesView, OccupancyReportView)
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
@@ -13,6 +13,7 @@ urlpatterns = [
     path('pessoas', PessoasView.as_view(), name='pessoas'),
     path('checkins', CheckinsView.as_view(), name='checkins'),
     path('home-services', HomeServicesView.as_view(), name='home_services'),
+    path('reports', OccupancyReportView.as_view(), name='reports'),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/docs/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),

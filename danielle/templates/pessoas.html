@@ -66,6 +66,7 @@
         .search-panel { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
         .search-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .search-input { flex: 1; min-width: 0; border: 1px solid #d6dce5; border-radius: 10px; padding: 11px 14px; font-size: 0.95rem; color: var(--dark); }
+        .page-size-select { border: 1px solid #d6dce5; border-radius: 10px; padding: 11px 14px; font-size: 0.95rem; color: var(--dark); background: #fff; }
         .search-btn { border: 0; border-radius: 10px; background: linear-gradient(135deg, #4da3ff, #2f80ed); color: #fff; font-weight: 700; padding: 11px 16px; cursor: pointer; }
         .search-clear { display: inline-flex; align-items: center; justify-content: center; padding: 11px 16px; border-radius: 10px; text-decoration: none; color: #4f5f73; font-weight: 600; background: #eef3f8; }
 
@@ -79,6 +80,11 @@
         .gender-m { background: #d1ecf1; color: #0c5460; }
         .gender-f { background: #f8d7da; color: #721c24; }
         .gender-o { background: #fff3cd; color: #856404; }
+
+        .pagination { display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 18px; flex-wrap: wrap; }
+        .page-link { min-width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: #334155; background: #eef3f8; font-weight: 700; padding: 0 10px; }
+        .page-link.active { background: linear-gradient(135deg, #4da3ff, #2f80ed); color: #fff; }
+        .page-link.disabled { pointer-events: none; opacity: 0.45; }
 
         @media (max-width: 768px) {
             .menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
@@ -113,6 +119,7 @@
             <a href="/pessoas" class="sidebar-icon active" title="Pessoas" data-page="pessoas"><i class="fa-solid fa-users"></i><span>Pessoas</span></a>
             <a href="/checkins" class="sidebar-icon" title="Check-ins" data-page="checkins"><i class="fa-solid fa-circle-check"></i><span>Check-ins</span></a>
             <a href="/home-services" class="sidebar-icon" title="Utilizações" data-page="home_services"><i class="fa-solid fa-hospital"></i><span>Utilizações</span></a>
+            <a href="/reports" class="sidebar-icon" title="Relatórios" data-page="reports"><i class="fa-solid fa-file-lines"></i><span>Relatórios</span></a>
             <a href="/admin/" class="sidebar-icon" title="Configurações" data-page="admin"><i class="fa-solid fa-gear"></i><span>Configurações</span></a>
         </div>
     </div>
@@ -142,6 +149,11 @@
         <div class="search-panel">
             <form class="search-form" method="get" action="/pessoas">
                 <input class="search-input" type="text" name="q" value="{{ search_query }}" placeholder="Buscar por nome, CPF ou e-mail">
+                <select class="page-size-select" name="per_page">
+                    {% for option in per_page_options %}
+                    <option value="{{ option }}" {% if per_page == option %}selected{% endif %}>{{ option }} por pagina</option>
+                    {% endfor %}
+                </select>
                 <button class="search-btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
                 {% if search_query %}
                     <a class="search-clear" href="/pessoas"><i class="fa-regular fa-circle-xmark"></i>&nbsp;Limpar</a>
@@ -204,6 +216,20 @@
                     {% endfor %}
                 </tbody>
             </table>
+
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="pagination">
+                <a class="page-link {% if not page_obj.has_previous %}disabled{% endif %}" href="{% if page_obj.has_previous %}/pessoas?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1{% else %}#{% endif %}">«</a>
+                <a class="page-link {% if not page_obj.has_previous %}disabled{% endif %}" href="{% if page_obj.has_previous %}/pessoas?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}{% else %}#{% endif %}">‹</a>
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                        <a class="page-link {% if page_obj.number == num %}active{% endif %}" href="/pessoas?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                <a class="page-link {% if not page_obj.has_next %}disabled{% endif %}" href="{% if page_obj.has_next %}/pessoas?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}{% else %}#{% endif %}">›</a>
+                <a class="page-link {% if not page_obj.has_next %}disabled{% endif %}" href="{% if page_obj.has_next %}/pessoas?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}{% else %}#{% endif %}">»</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 
