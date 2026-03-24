@@ -13,6 +13,7 @@ router.register('patient_companion_checkin',
                 views.PatientCompanionCheckinViewSet)
 router.register('home_services', views.HomeServicesViewSet)
 router.register('professional_services', views.ProfessionalServicesViewSet)
+router.register('audit-logs', views.AuditLogViewSet, basename='audit-log')
 # router.register('checkins', views.CheckinViewSet)
 
 urlpatterns = [

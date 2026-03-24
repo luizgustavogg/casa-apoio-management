@@ -5,6 +5,7 @@ from people.models import Checkout
 from people.models import HomeServices
 from people.models import ProfessionalServices
 from people.models import HouseConfiguration
+from people.models import AuditLog
 
 admin.site.site_header = "Gestão de pessoas"
 admin.site.site_title = "Gestão fácil!"
@@ -104,9 +105,26 @@ class HouseConfigurationAdmin(admin.ModelAdmin):
     ]
 
 
+class AuditLogAdmin(admin.ModelAdmin):
+    list_display = ('created_at', 'entity', 'object_id', 'action')
+    list_filter = ('entity', 'action', 'created_at')
+    search_fields = ('entity', 'object_id')
+    readonly_fields = (
+        'created_at', 'entity', 'object_id', 'action',
+        'changed_fields', 'before_data', 'after_data'
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
 admin.site.register(Person, PersonAdmin)
 admin.site.register(Checkin, CheckinAdmin)
 admin.site.register(Checkout, CheckoutAdmin)
 admin.site.register(HomeServices, HomeServicesAdmin)
 admin.site.register(ProfessionalServices, ProfessionalServicesAdmin)
 admin.site.register(HouseConfiguration, HouseConfigurationAdmin)
+admin.site.register(AuditLog, AuditLogAdmin)
