@@ -6,3 +6,4 @@ from .checkout import CheckoutSerializer
 from .house_configuration import HouseConfigurationSerializer
 from .home_services import HomeServicesSerializer
 from .professional_services import ProfessionalServicesSerializer
+from .audit_log import AuditLogSerializer

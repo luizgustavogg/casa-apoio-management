@@ -5,3 +5,4 @@ from .occupancy_report import (
 	build_typed_report,
 	get_report_type_options,
 )
+from .audit_log_export import build_audit_log_xlsx

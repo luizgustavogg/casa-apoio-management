@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Histórico de Auditoria</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 24pt;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #1f2937;
+            font-size: 9pt;
+            line-height: 1.3;
+        }
+        .title {
+            font-size: 13pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8pt;
+        }
+        .muted {
+            color: #475569;
+            margin-bottom: 12pt;
+        }
+        .section {
+            border: 1px solid #cbd5e1;
+            border-radius: 6pt;
+            padding: 10pt;
+            margin-bottom: 12pt;
+        }
+        .section-title {
+            font-size: 9pt;
+            font-weight: bold;
+            color: #334155;
+            text-transform: uppercase;
+            margin-bottom: 8pt;
+        }
+        .summary {
+            margin-bottom: 12pt;
+            color: #334155;
+        }
+        .event-card {
+            border: 1px solid #dbe3ee;
+            border-radius: 6pt;
+            padding: 10pt;
+            margin-bottom: 10pt;
+        }
+        .event-head {
+            font-weight: bold;
+            margin-bottom: 6pt;
+            color: #1e293b;
+        }
+        .meta {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8pt;
+        }
+        .meta td {
+            border: 1px solid #dbe3ee;
+            padding: 5pt;
+            vertical-align: top;
+        }
+        .meta-label {
+            width: 28%;
+            background: #eef3f9;
+            font-weight: bold;
+            color: #334155;
+        }
+        .field-badge {
+            color: #475569;
+        }
+        .columns {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 8pt 0;
+        }
+        .column {
+            width: 50%;
+            border: 1px solid #dbe3ee;
+            border-radius: 6pt;
+            padding: 8pt;
+            vertical-align: top;
+        }
+        .column-title {
+            font-size: 9pt;
+            font-weight: bold;
+            color: #334155;
+            margin-bottom: 6pt;
+            text-transform: uppercase;
+        }
+        .item-list {
+            margin: 0;
+            padding-left: 14pt;
+        }
+        .item-list li {
+            margin-bottom: 4pt;
+        }
+        .empty {
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">Histórico de Auditoria - Casa de Apoio</div>
+    <div class="muted">{{ filter_summary }}</div>
+    <div class="summary">Total de eventos no relatório: {{ total_logs }}</div>
+
+    <div class="section">
+        <div class="section-title">Eventos</div>
+        {% for log in logs %}
+        <div class="event-card">
+            <div class="event-head">{{ log.action_label }} em {{ log.entity_label }}</div>
+
+            <table class="meta">
+                <tr>
+                    <td class="meta-label">Data</td>
+                    <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
+                    <td class="meta-label">Registro</td>
+                    <td>#{{ log.object_id }}</td>
+                </tr>
+                <tr>
+                    <td class="meta-label">Entidade técnica</td>
+                    <td>{{ log.entity }}</td>
+                    <td class="meta-label">Campos alterados</td>
+                    <td>
+                        {% if log.changed_fields %}
+                            <span class="field-badge">{{ log.changed_fields|join:", " }}</span>
+                        {% else %}
+                            <span class="empty">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+            <table class="columns">
+                <tr>
+                    <td class="column">
+                        <div class="column-title">Antes</div>
+                        {% if log.before_summary %}
+                        <ul class="item-list">
+                            {% for item in log.before_summary %}
+                            <li><strong>{{ item.field }}:</strong> {{ item.value }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <div class="empty">Sem dados anteriores.</div>
+                        {% endif %}
+                    </td>
+                    <td class="column">
+                        <div class="column-title">Depois</div>
+                        {% if log.after_summary %}
+                        <ul class="item-list">
+                            {% for item in log.after_summary %}
+                            <li><strong>{{ item.field }}:</strong> {{ item.value }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <div class="empty">Sem dados posteriores.</div>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        {% empty %}
+        <div class="empty">Nenhum evento encontrado para os filtros informados.</div>
+        {% endfor %}
+    </div>
+</body>
+</html>

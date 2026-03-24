@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historico - Casa de Apoio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #1abc9c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --bg: #f5f6fa;
+            --sidebar-width: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background-color: var(--bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--dark); overflow-x: hidden; }
+        body.sidebar-open { overflow: hidden; }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 999; }
+        body.sidebar-open .sidebar-overlay { opacity: 1; pointer-events: auto; }
+        .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100vh; background: linear-gradient(180deg, var(--dark) 0%, #34495e 100%); z-index: 1000; display: flex; flex-direction: column; padding: 18px 14px; box-shadow: 0 18px 40px rgba(44, 62, 80, 0.24); }
+        .sidebar-brand { display: flex; align-items: center; gap: 12px; color: #fff; padding: 10px 12px 20px; border-bottom: 1px solid rgba(236, 240, 241, 0.12); }
+        .sidebar-brand-badge { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #4da3ff, #2f80ed); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .sidebar-brand-text { display: flex; flex-direction: column; gap: 2px; }
+        .sidebar-brand-title { font-size: 0.95rem; font-weight: 700; }
+        .sidebar-brand-subtitle { font-size: 0.75rem; color: rgba(236, 240, 241, 0.72); }
+        .sidebar-icons { display: flex; flex-direction: column; gap: 8px; padding: 18px 0; height: 100%; }
+        .sidebar-section-title { color: rgba(236, 240, 241, 0.55); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; padding: 12px 12px 8px; text-transform: uppercase; }
+        .sidebar-icon { width: 100%; min-height: 50px; border-radius: 12px; display: flex; align-items: center; gap: 12px; color: #ecf0f1; font-size: 1rem; transition: all 0.3s ease; text-decoration: none; padding: 0 14px; font-weight: 600; }
+        .sidebar-icon i { width: 22px; font-size: 1.25rem; text-align: center; flex-shrink: 0; }
+        .sidebar-icon span { white-space: nowrap; }
+        .sidebar-icon:hover { background: rgba(52, 152, 219, 0.2); color: #3498db; }
+        .sidebar-icon.active { background: linear-gradient(135deg, #4da3ff, #2f80ed); color: #fff; box-shadow: 0 10px 18px rgba(47, 128, 237, 0.28); }
+
+        .main-content { margin-left: var(--sidebar-width); padding: 24px; display: flex; flex-direction: column; gap: 20px; min-height: 100vh; }
+        .main-topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: white; padding: 14px 18px; border-radius: 14px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
+        .menu-toggle { width: 42px; height: 42px; border: 0; border-radius: 10px; background: transparent; color: #5b6574; font-size: 1.35rem; cursor: pointer; display: none; }
+        .menu-toggle:hover { background: #eef3f8; }
+        .topbar-meta { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .topbar-meta-text { min-width: 0; }
+        .topbar-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #8b97a8; font-weight: 700; }
+        .topbar-title { font-size: 1rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .navbar-top { background: white; padding: 20px 30px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: center; }
+        .navbar-title { font-size: 1.8rem; font-weight: 700; }
+        .navbar-subtitle { font-size: 0.9rem; color: #7f8c8d; margin-top: 5px; }
+
+        .filter-panel, .table-container { background: white; border-radius: 12px; padding: 22px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
+        .panel-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+        .panel-subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 18px; }
+        .period-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: #eff6ff; color: #1d4ed8; font-size: 0.82rem; font-weight: 700; margin-bottom: 14px; }
+        .period-badge strong { color: #1e293b; }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+        .kpi-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); border-left: 4px solid; position: relative; }
+        .kpi-card.primary { border-left-color: var(--primary); }
+        .kpi-card.success { border-left-color: var(--success); }
+        .kpi-card.warning { border-left-color: var(--warning); }
+        .kpi-card.danger { border-left-color: var(--danger); }
+        .kpi-icon { position: absolute; right: 15px; top: 15px; font-size: 2.4rem; opacity: 0.1; }
+        .kpi-value { font-size: 2rem; font-weight: 700; color: var(--dark); }
+        .kpi-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #95a5a6; margin-top: 8px; font-weight: 600; }
+
+        .filter-grid { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)) auto; gap: 10px; align-items: end; }
+        .filters-actions { display: flex; gap: 10px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
+        .field-label { font-size: 0.85rem; color: #5f6f83; margin-bottom: 5px; display: block; }
+        .field-input { width: 100%; border: 1px solid #d6dce5; border-radius: 10px; padding: 10px 12px; color: #1e293b; background: #fff; }
+        .field-input:focus { outline: 0; border-color: #8ab8ff; box-shadow: 0 0 0 3px rgba(77, 163, 255, 0.18); }
+        .btn { border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
+        .btn-primary { background: linear-gradient(135deg, #4da3ff, #2f80ed); color: #fff; }
+        .btn-secondary { background: #eef3f8; color: #334155; }
+        .btn-secondary:hover { background: #e4ebf3; }
+
+        .table-title { font-size: 1.1rem; font-weight: 600; color: var(--dark); margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--light); }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th { background: #f1f5f9; padding: 12px; text-align: left; font-weight: 700; color: #334155; }
+        tbody td { padding: 12px; border-bottom: 1px solid #e5edf7; vertical-align: top; }
+        tbody tr:nth-child(even) { background: #fbfdff; }
+        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+        .badge-create { background: #d4edda; color: #155724; }
+        .badge-update { background: #fff3cd; color: #856404; }
+        .badge-delete { background: #f8d7da; color: #721c24; }
+        .entity-pill { display: inline-block; padding: 5px 9px; border-radius: 999px; background: #eef3f8; color: #334155; font-size: 0.78rem; font-weight: 700; }
+        .field-list { color: #5f6f83; font-size: 0.86rem; }
+        .json-details { min-width: 300px; }
+        .json-toggle { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; list-style: none; font-size: 0.8rem; font-weight: 700; color: #2563eb; }
+        .json-toggle::-webkit-details-marker { display: none; }
+        .json-details[open] .json-toggle { margin-bottom: 8px; }
+        .json-block { margin: 0; white-space: pre-wrap; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; font-size: 0.78rem; color: #334155; max-height: 220px; overflow: auto; }
+        .json-empty { display: inline-flex; align-items: center; justify-content: center; min-width: 42px; padding: 8px 10px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; }
+        .empty-state { text-align: center; color: #64748b; padding: 26px 12px; }
+        .pagination { display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 18px; flex-wrap: wrap; }
+        .page-link { min-width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: #334155; background: #eef3f8; font-weight: 700; padding: 0 10px; }
+        .page-link.active { background: linear-gradient(135deg, #4da3ff, #2f80ed); color: #fff; }
+        .page-link.disabled { pointer-events: none; opacity: 0.45; }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
+            .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+            body.sidebar-open .sidebar { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 15px; }
+            .navbar-top { flex-direction: column; text-align: center; gap: 15px; }
+            .filter-grid { grid-template-columns: 1fr; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .filters-actions { justify-content: stretch; }
+            .filters-actions .btn { flex: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" data-sidebar-close></div>
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-badge"><i class="fa-solid fa-house-medical"></i></div>
+            <div class="sidebar-brand-text">
+                <div class="sidebar-brand-title">Casa de Apoio</div>
+                <div class="sidebar-brand-subtitle">Painel administrativo</div>
+            </div>
+        </div>
+        <div class="sidebar-icons">
+            <div class="sidebar-section-title">Navegação</div>
+            <a href="/dashboard" class="sidebar-icon" title="Dashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+            <a href="/pessoas" class="sidebar-icon" title="Pessoas"><i class="fa-solid fa-users"></i><span>Pessoas</span></a>
+            <a href="/checkins" class="sidebar-icon" title="Check-ins"><i class="fa-solid fa-circle-check"></i><span>Check-ins</span></a>
+            <a href="/home-services" class="sidebar-icon" title="Utilizações"><i class="fa-solid fa-hospital"></i><span>Utilizações</span></a>
+            <a href="/reports" class="sidebar-icon" title="Relatórios"><i class="fa-solid fa-file-lines"></i><span>Relatórios</span></a>
+            <a href="/audit-logs" class="sidebar-icon active" title="Histórico"><i class="fa-solid fa-clock-rotate-left"></i><span>Histórico</span></a>
+            <a href="/admin/" class="sidebar-icon" title="Configurações"><i class="fa-solid fa-gear"></i><span>Configurações</span></a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="main-topbar">
+            <div class="topbar-meta">
+                <button class="menu-toggle" type="button" aria-label="Abrir menu" data-sidebar-toggle>
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="topbar-meta-text">
+                    <div class="topbar-label">Painel</div>
+                    <div class="topbar-title">Histórico de Alterações</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navbar-top">
+            <div>
+                <div class="navbar-title">Histórico de Auditoria</div>
+                <div class="navbar-subtitle">Rastreabilidade operacional | Casa de Apoio</div>
+            </div>
+            <div class="topbar-label">Listagem</div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card primary"><i class="fa-solid fa-clock-rotate-left kpi-icon"></i><div class="kpi-value">{{ total_logs }}</div><div class="kpi-label">Eventos</div></div>
+            <div class="kpi-card success"><i class="fa-solid fa-plus kpi-icon"></i><div class="kpi-value">{{ created_count }}</div><div class="kpi-label">Criações</div></div>
+            <div class="kpi-card warning"><i class="fa-solid fa-pen kpi-icon"></i><div class="kpi-value">{{ updated_count }}</div><div class="kpi-label">Atualizações</div></div>
+            <div class="kpi-card danger"><i class="fa-solid fa-trash kpi-icon"></i><div class="kpi-value">{{ deleted_count }}</div><div class="kpi-label">Exclusões</div></div>
+        </div>
+
+        <div class="filter-panel">
+            <div class="panel-title">Filtros do Histórico</div>
+            <div class="panel-subtitle">Filtre por entidade, ação e intervalo de datas para rastrear alterações operacionais.</div>
+            <div class="period-badge">
+                <i class="fa-regular fa-calendar"></i>
+                Filtros ativos:
+                <strong>
+                    {{ selected_entity|default:"todas as entidades" }} |
+                    {{ selected_action|default:"todas as ações" }} |
+                    {{ start_date|default:"início" }} até {{ end_date|default:"hoje" }}
+                </strong>
+            </div>
+            <form method="get" action="/audit-logs" class="filter-grid">
+                <div>
+                    <label class="field-label" for="entity">Entidade</label>
+                    <select class="field-input" id="entity" name="entity">
+                        <option value="">Todas</option>
+                        {% for value, label in entity_options %}
+                        <option value="{{ value }}" {% if selected_entity == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label" for="action">Ação</label>
+                    <select class="field-input" id="action" name="action">
+                        <option value="">Todas</option>
+                        {% for value, label in action_options %}
+                        <option value="{{ value }}" {% if selected_action == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="field-label" for="start_date">Data inicial</label>
+                    <input class="field-input" type="date" id="start_date" name="start_date" value="{{ start_date }}">
+                </div>
+                <div>
+                    <label class="field-label" for="end_date">Data final</label>
+                    <input class="field-input" type="date" id="end_date" name="end_date" value="{{ end_date }}">
+                </div>
+                <div>
+                    <label class="field-label" for="per_page">Itens por página</label>
+                    <select class="field-input" id="per_page" name="per_page">
+                        {% for option in per_page_options %}
+                        <option value="{{ option }}" {% if per_page == option %}selected{% endif %}>{{ option }} por página</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filters-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i>Filtrar</button>
+                    <a class="btn btn-secondary" href="/audit-logs"><i class="fa-regular fa-circle-xmark"></i>Limpar</a>
+                    <a class="btn btn-secondary" href="/audit-logs?{% if selected_entity %}entity={{ selected_entity }}&{% endif %}{% if selected_action %}action={{ selected_action }}&{% endif %}{% if start_date %}start_date={{ start_date }}&{% endif %}{% if end_date %}end_date={{ end_date }}&{% endif %}export=xlsx"><i class="fa-solid fa-file-excel"></i>XLSX</a>
+                    <a class="btn btn-secondary" href="/audit-logs?{% if selected_entity %}entity={{ selected_entity }}&{% endif %}{% if selected_action %}action={{ selected_action }}&{% endif %}{% if start_date %}start_date={{ start_date }}&{% endif %}{% if end_date %}end_date={{ end_date }}&{% endif %}export=pdf"><i class="fa-solid fa-file-pdf"></i>PDF</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <div class="table-title">Eventos de auditoria</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Ação</th>
+                            <th>Entidade</th>
+                            <th>Registro</th>
+                            <th>Campos alterados</th>
+                            <th>Antes</th>
+                            <th>Depois</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if log.action == 'create' %}
+                                <span class="badge badge-create"><i class="fa-solid fa-plus"></i> Criação</span>
+                                {% elif log.action == 'update' %}
+                                <span class="badge badge-update"><i class="fa-solid fa-pen"></i> Atualização</span>
+                                {% else %}
+                                <span class="badge badge-delete"><i class="fa-solid fa-trash"></i> Exclusão</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="entity-pill">{{ log.entity }}</span></td>
+                            <td>#{{ log.object_id }}</td>
+                            <td class="field-list">{{ log.changed_fields|join:", "|default:"—" }}</td>
+                            <td>
+                                {% if log.before_data %}
+                                <details class="json-details">
+                                    <summary class="json-toggle"><i class="fa-solid fa-eye"></i> Ver JSON</summary>
+                                    <pre class="json-block">{{ log.before_data_pretty }}</pre>
+                                </details>
+                                {% else %}
+                                <span class="json-empty">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.after_data %}
+                                <details class="json-details">
+                                    <summary class="json-toggle"><i class="fa-solid fa-eye"></i> Ver JSON</summary>
+                                    <pre class="json-block">{{ log.after_data_pretty }}</pre>
+                                </details>
+                                {% else %}
+                                <span class="json-empty">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="empty-state">Nenhum evento encontrado para os filtros informados.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="pagination">
+                <a class="page-link {% if not page_obj.has_previous %}disabled{% endif %}" href="{% if page_obj.has_previous %}/audit-logs?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1{% else %}#{% endif %}">«</a>
+                <a class="page-link {% if not page_obj.has_previous %}disabled{% endif %}" href="{% if page_obj.has_previous %}/audit-logs?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}{% else %}#{% endif %}">‹</a>
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                        <a class="page-link {% if page_obj.number == num %}active{% endif %}" href="/audit-logs?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                <a class="page-link {% if not page_obj.has_next %}disabled{% endif %}" href="{% if page_obj.has_next %}/audit-logs?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}{% else %}#{% endif %}">›</a>
+                <a class="page-link {% if not page_obj.has_next %}disabled{% endif %}" href="{% if page_obj.has_next %}/audit-logs?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}{% else %}#{% endif %}">»</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
+            const sidebarClose = document.querySelector('[data-sidebar-close]');
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    body.classList.toggle('sidebar-open');
+                });
+            }
+
+            if (sidebarClose) {
+                sidebarClose.addEventListener('click', function() {
+                    body.classList.remove('sidebar-open');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
