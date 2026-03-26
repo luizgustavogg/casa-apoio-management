@@ -634,9 +634,7 @@
           <i class="fa-regular fa-calendar"></i>
           Filtros ativos:
           <strong>
-            {{ selected_entity|default:"todas as entidades" }} | {{
-            selected_action|default:"todas as ações" }} | {{
-            start_date|default:"início" }} até {{ end_date|default:"hoje" }}
+            {{ selected_entity|default:"todas as entidades" }} | {{ selected_action|default:"todas as ações" }} | {{ start_date|default:"início" }} até {{ end_date|default:"hoje" }}
           </strong>
         </div>
         <form method="get" action="/audit-logs" class="filter-grid">
@@ -647,13 +645,7 @@
               {% for value, label in entity_options %}
               <option
                 value="{{ value }}"
-                {%
-                if
-                selected_entity=""
-                ="value"
-                %}selected{%
-                endif
-                %}
+                {% if selected_entity == value %}selected{% endif %}
               >
                 {{ label }}
               </option>
@@ -667,13 +659,7 @@
               {% for value, label in action_options %}
               <option
                 value="{{ value }}"
-                {%
-                if
-                selected_action=""
-                ="value"
-                %}selected{%
-                endif
-                %}
+                {% if selected_action == value %}selected{% endif %}
               >
                 {{ label }}
               </option>
@@ -706,13 +692,7 @@
               {% for option in per_page_options %}
               <option
                 value="{{ option }}"
-                {%
-                if
-                per_page=""
-                ="option"
-                %}selected{%
-                endif
-                %}
+                {% if per_page == option %}selected{% endif %}
               >
                 {{ option }} por página
               </option>
