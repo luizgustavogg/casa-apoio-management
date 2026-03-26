@@ -2,7 +2,7 @@ from rest_framework import status
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
-from people.models import Person
+from people.models import Checkin, Person
 from faker import Faker
 
 
@@ -85,3 +85,15 @@ class PersonViewTests(APITestCase):
 
         self.assertEqual(response.data['count'], 20)
         self.assertEqual(len(response.data['results']), 12)
+
+    def test_delete_person_with_linked_checkin_returns_400(self):
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+
+        person = Person.objects.create(name='Pessoa Com Vinculo')
+        Checkin.objects.create(person=person, reason='patient')
+
+        response = self.client.delete(f'/api/v1/people/{person.id}/', format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('Não é possível excluir', response.data['detail'])
+        self.assertTrue(Person.objects.filter(id=person.id).exists())
