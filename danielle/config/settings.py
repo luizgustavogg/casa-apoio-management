@@ -104,30 +104,12 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-USE_MYSQL = os.environ.get("USE_MYSQL", "0") == "1"
-
-if USE_MYSQL:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": os.environ.get("MYSQL_DATABASE", "casa_apoio_management"),
-            "USER": os.environ.get("MYSQL_USER", "root"),
-            "PASSWORD": os.environ.get("MYSQL_PASSWORD", "root1234"),
-            "HOST": os.environ.get("MYSQL_HOST", "127.0.0.1"),
-            "PORT": os.environ.get("MYSQL_PORT", "3306"),
-            "TEST": {
-                "ENGINE": "django.db.backends.sqlite3",
-                "NAME": "test_casa_apoio_management",
-            },
-        },
-    }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(BASE_DIR, "casa-apoio-managementdb.sqlite3"),
-        },
-    }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "casa-apoio-managementdb.sqlite3"),
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

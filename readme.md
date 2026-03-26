@@ -10,12 +10,6 @@
 
 - > pip install -r requirements.txt
 
-### In production, include enviroment variables
-
-- > set DATABASE_URL=postgres://o.......
-
-- > set SECRET_KEY=e6=m0rind-)pn+aw......
-
 ### Enter project folder
 
 - > cd danielle
@@ -59,28 +53,6 @@
 
 - > python manage.py migrate
 - > python manage.py runserver
-
-### Use MySQL (optional)
-
-- PowerShell:
-  - > $env:USE_MYSQL="1"
-  - > $env:MYSQL_DATABASE="casa_apoio_management"
-  - > $env:MYSQL_USER="root"
-  - > $env:MYSQL_PASSWORD="your_password"
-  - > $env:MYSQL_HOST="127.0.0.1"
-  - > $env:MYSQL_PORT="3306"
-  - > python manage.py migrate
-  - > python manage.py runserver
-
-- CMD:
-  - > set USE_MYSQL=1
-  - > set MYSQL_DATABASE=casa_apoio_management
-  - > set MYSQL_USER=root
-  - > set MYSQL_PASSWORD=your_password
-  - > set MYSQL_HOST=127.0.0.1
-  - > set MYSQL_PORT=3306
-  - > python manage.py migrate
-  - > python manage.py runserver
 
 ### Rotas
 
