@@ -6,6 +6,22 @@ from people.models import AuditLog, Checkin, Checkout, HomeServices, Person
 class AuditLogTests(TestCase):
     def setUp(self):
         self.person = Person.objects.create(name="Paciente Auditoria")
+        AuditLog.objects.all().delete()
+
+    def test_person_creation_generates_audit_event(self):
+        person = Person.objects.create(name="Pessoa no historico")
+
+        audit = AuditLog.objects.filter(
+            action=AuditLog.ACTION_CREATE,
+            entity="person",
+            object_id=person.id,
+        ).first()
+
+        self.assertIsNotNone(audit)
+        self.assertIsNotNone(audit.created_at)
+        self.assertIn("name", audit.changed_fields)
+        self.assertEqual(audit.after_data["name"], "Pessoa no historico")
+        self.assertIsNone(audit.before_data)
 
     def test_checkin_creation_generates_audit_event(self):
         self.assertEqual(AuditLog.objects.count(), 0)

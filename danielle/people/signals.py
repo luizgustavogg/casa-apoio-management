@@ -5,12 +5,12 @@ from threading import local
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 
-from people.models import Checkin, Checkout, HomeServices, ProfessionalServices
+from people.models import Checkin, Checkout, HomeServices, Person, ProfessionalServices
 from people.models.audit_log import AuditLog
 
 
 _SIGNAL_STATE = local()
-TRACKED_MODELS = (Checkin, Checkout, HomeServices, ProfessionalServices)
+TRACKED_MODELS = (Checkin, Checkout, HomeServices, ProfessionalServices, Person)
 IGNORED_CHANGE_FIELDS = {"updated_at"}
 
 
