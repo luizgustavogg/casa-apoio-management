@@ -44,7 +44,9 @@ def _serialize_instance(instance):
     return data
 
 
-def _safe_create_log(*, action, instance, before_data=None, after_data=None, changed_fields=None):
+def _safe_create_log(
+    *, action, instance, before_data=None, after_data=None, changed_fields=None
+):
     try:
         AuditLog.objects.create(
             action=action,
@@ -82,7 +84,9 @@ def capture_before_state(sender, instance, **kwargs):
         if not previous:
             return
         model_label = sender._meta.label_lower
-        _storage()[_snapshot_key(model_label, instance.pk)] = _serialize_instance(previous)
+        _storage()[_snapshot_key(model_label, instance.pk)] = _serialize_instance(
+            previous
+        )
     except Exception:
         return
 

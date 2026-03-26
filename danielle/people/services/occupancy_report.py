@@ -32,9 +32,11 @@ def _build_all_days(start_date, end_date):
 
 
 def _occupancy_on_day(day):
-    return Checkin.objects.filter(created_at__date__lte=day).filter(
-        Q(checkout__isnull=True) | Q(checkout__created_at__date__gt=day)
-    ).count()
+    return (
+        Checkin.objects.filter(created_at__date__lte=day)
+        .filter(Q(checkout__isnull=True) | Q(checkout__created_at__date__gt=day))
+        .count()
+    )
 
 
 def _build_occupancy_typed_report(start_date, end_date):
@@ -80,7 +82,11 @@ def _build_occupancy_typed_report(start_date, end_date):
             {"label": "Menor ocupacao", "value": min_primary, "unit": "pessoas"},
             {"label": "Dias com ocupacao", "value": days_with_value, "unit": "dias"},
             {"label": "Uso no pico", "value": peak_rate, "unit": "%"},
-            {"label": "Datas de pico", "value": ", ".join(peak_days) if peak_days else "--", "unit": ""},
+            {
+                "label": "Datas de pico",
+                "value": ", ".join(peak_days) if peak_days else "--",
+                "unit": "",
+            },
             {
                 "label": "Datas de menor ocupacao",
                 "value": ", ".join(lowest_days) if lowest_days else "--",
@@ -103,7 +109,9 @@ def _build_occupancy_typed_report(start_date, end_date):
                     "fill": True,
                 }
             ],
-            "max_value_hint": max(max_capacity, max(primary_values) if primary_values else 0),
+            "max_value_hint": max(
+                max_capacity, max(primary_values) if primary_values else 0
+            ),
         },
     }
 
@@ -116,7 +124,9 @@ def _build_people_typed_report(start_date, end_date):
     for day in all_days:
         count = Person.objects.filter(created_at__date=day).count()
         running_total += count
-        daily.append({"date": day.isoformat(), "primary": count, "secondary": running_total})
+        daily.append(
+            {"date": day.isoformat(), "primary": count, "secondary": running_total}
+        )
 
     total_people = Person.objects.count()
     primary_values = [item["primary"] for item in daily]
@@ -132,10 +142,18 @@ def _build_people_typed_report(start_date, end_date):
             "days": len(all_days),
         },
         "summary": [
-            {"label": "Pessoas cadastradas no periodo", "value": sum(primary_values), "unit": "pessoas"},
+            {
+                "label": "Pessoas cadastradas no periodo",
+                "value": sum(primary_values),
+                "unit": "pessoas",
+            },
             {"label": "Media diaria de cadastros", "value": avg, "unit": "pessoas"},
             {"label": "Maior dia de cadastro", "value": peak, "unit": "pessoas"},
-            {"label": "Total geral de pessoas", "value": total_people, "unit": "pessoas"},
+            {
+                "label": "Total geral de pessoas",
+                "value": total_people,
+                "unit": "pessoas",
+            },
         ],
         "daily": daily,
         "table": {
@@ -165,7 +183,13 @@ def _build_checkin_typed_report(start_date, end_date):
     for day in all_days:
         created_today = Checkin.objects.filter(created_at__date=day).count()
         active_on_day = _occupancy_on_day(day)
-        daily.append({"date": day.isoformat(), "primary": created_today, "secondary": active_on_day})
+        daily.append(
+            {
+                "date": day.isoformat(),
+                "primary": created_today,
+                "secondary": active_on_day,
+            }
+        )
 
     primary_values = [item["primary"] for item in daily]
     active_values = [item["secondary"] for item in daily]
@@ -179,10 +203,26 @@ def _build_checkin_typed_report(start_date, end_date):
             "days": len(all_days),
         },
         "summary": [
-            {"label": "Check-ins no periodo", "value": sum(primary_values), "unit": "eventos"},
-            {"label": "Media diaria de check-ins", "value": round(mean(primary_values), 2) if primary_values else 0, "unit": "eventos"},
-            {"label": "Pico diario de check-ins", "value": max(primary_values) if primary_values else 0, "unit": "eventos"},
-            {"label": "Media de ativos no periodo", "value": round(mean(active_values), 2) if active_values else 0, "unit": "pessoas"},
+            {
+                "label": "Check-ins no periodo",
+                "value": sum(primary_values),
+                "unit": "eventos",
+            },
+            {
+                "label": "Media diaria de check-ins",
+                "value": round(mean(primary_values), 2) if primary_values else 0,
+                "unit": "eventos",
+            },
+            {
+                "label": "Pico diario de check-ins",
+                "value": max(primary_values) if primary_values else 0,
+                "unit": "eventos",
+            },
+            {
+                "label": "Media de ativos no periodo",
+                "value": round(mean(active_values), 2) if active_values else 0,
+                "unit": "pessoas",
+            },
         ],
         "daily": daily,
         "table": {
@@ -207,7 +247,11 @@ def _build_checkin_typed_report(start_date, end_date):
                     "fill": False,
                 },
             ],
-            "max_value_hint": max(primary_values + active_values) if (primary_values or active_values) else 0,
+            "max_value_hint": (
+                max(primary_values + active_values)
+                if (primary_values or active_values)
+                else 0
+            ),
         },
     }
 
@@ -233,9 +277,21 @@ def _build_checkout_typed_report(start_date, end_date):
             "days": len(all_days),
         },
         "summary": [
-            {"label": "Check-outs no periodo", "value": sum(primary_values), "unit": "eventos"},
-            {"label": "Media diaria de check-outs", "value": round(mean(primary_values), 2) if primary_values else 0, "unit": "eventos"},
-            {"label": "Pico diario de check-outs", "value": max(primary_values) if primary_values else 0, "unit": "eventos"},
+            {
+                "label": "Check-outs no periodo",
+                "value": sum(primary_values),
+                "unit": "eventos",
+            },
+            {
+                "label": "Media diaria de check-outs",
+                "value": round(mean(primary_values), 2) if primary_values else 0,
+                "unit": "eventos",
+            },
+            {
+                "label": "Pico diario de check-outs",
+                "value": max(primary_values) if primary_values else 0,
+                "unit": "eventos",
+            },
         ],
         "daily": daily,
         "table": {
@@ -260,9 +316,7 @@ def _build_checkout_typed_report(start_date, end_date):
 
 def _home_services_score_for_day(day):
     services = HomeServices.objects.filter(created_at__date=day)
-    rows = services.values(
-        "breakfast", "lunch", "snack", "dinner", "shower", "sleep"
-    )
+    rows = services.values("breakfast", "lunch", "snack", "dinner", "shower", "sleep")
     total_actions = 0
     for item in rows:
         total_actions += sum(1 for value in item.values() if value)
@@ -274,7 +328,9 @@ def _build_home_services_typed_report(start_date, end_date):
     daily = []
     for day in all_days:
         records, actions = _home_services_score_for_day(day)
-        daily.append({"date": day.isoformat(), "primary": records, "secondary": actions})
+        daily.append(
+            {"date": day.isoformat(), "primary": records, "secondary": actions}
+        )
 
     primary_values = [item["primary"] for item in daily]
     action_values = [item["secondary"] for item in daily]
@@ -288,10 +344,26 @@ def _build_home_services_typed_report(start_date, end_date):
             "days": len(all_days),
         },
         "summary": [
-            {"label": "Registros no periodo", "value": sum(primary_values), "unit": "registros"},
-            {"label": "Acoes de servico no periodo", "value": sum(action_values), "unit": "acoes"},
-            {"label": "Media diaria de registros", "value": round(mean(primary_values), 2) if primary_values else 0, "unit": "registros"},
-            {"label": "Pico diario de acoes", "value": max(action_values) if action_values else 0, "unit": "acoes"},
+            {
+                "label": "Registros no periodo",
+                "value": sum(primary_values),
+                "unit": "registros",
+            },
+            {
+                "label": "Acoes de servico no periodo",
+                "value": sum(action_values),
+                "unit": "acoes",
+            },
+            {
+                "label": "Media diaria de registros",
+                "value": round(mean(primary_values), 2) if primary_values else 0,
+                "unit": "registros",
+            },
+            {
+                "label": "Pico diario de acoes",
+                "value": max(action_values) if action_values else 0,
+                "unit": "acoes",
+            },
         ],
         "daily": daily,
         "table": {
@@ -316,7 +388,11 @@ def _build_home_services_typed_report(start_date, end_date):
                     "fill": False,
                 },
             ],
-            "max_value_hint": max(primary_values + action_values) if (primary_values or action_values) else 0,
+            "max_value_hint": (
+                max(primary_values + action_values)
+                if (primary_values or action_values)
+                else 0
+            ),
         },
     }
 
@@ -343,7 +419,10 @@ def _build_gender_mix_typed_report(start_date, end_date):
     male_total = Person.objects.filter(gender="M").count()
     female_total = Person.objects.filter(gender="F").count()
     other_total = Person.objects.filter(gender="O").count()
-    unspecified_total = Person.objects.filter(gender__isnull=True).count() + Person.objects.filter(gender="").count()
+    unspecified_total = (
+        Person.objects.filter(gender__isnull=True).count()
+        + Person.objects.filter(gender="").count()
+    )
 
     return {
         "report_type": "gender_mix",
@@ -358,7 +437,11 @@ def _build_gender_mix_typed_report(start_date, end_date):
             {"label": "Feminino", "value": female_total, "unit": "pessoas"},
             {"label": "Outro", "value": other_total, "unit": "pessoas"},
             {"label": "Nao informado", "value": unspecified_total, "unit": "pessoas"},
-            {"label": "Total geral", "value": male_total + female_total + other_total + unspecified_total, "unit": "pessoas"},
+            {
+                "label": "Total geral",
+                "value": male_total + female_total + other_total + unspecified_total,
+                "unit": "pessoas",
+            },
         ],
         "daily": daily,
         "table": {
@@ -427,11 +510,11 @@ def build_occupancy_report(start_date, end_date):
 
     daily = []
     for day in all_days:
-        occupancy = Checkin.objects.filter(
-            created_at__date__lte=day
-        ).filter(
-            Q(checkout__isnull=True) | Q(checkout__created_at__date__gt=day)
-        ).count()
+        occupancy = (
+            Checkin.objects.filter(created_at__date__lte=day)
+            .filter(Q(checkout__isnull=True) | Q(checkout__created_at__date__gt=day))
+            .count()
+        )
 
         occupancy_rate = (occupancy / max_capacity * 100) if max_capacity > 0 else 0
         daily.append(
@@ -453,7 +536,9 @@ def build_occupancy_report(start_date, end_date):
     lowest_days = [item for item in daily if item["occupancy"] == min_occupancy]
 
     days_with_occupancy = len([value for value in occupancies if value > 0])
-    capacity_used_peak_rate = (max_occupancy / max_capacity * 100) if max_capacity > 0 else 0
+    capacity_used_peak_rate = (
+        (max_occupancy / max_capacity * 100) if max_capacity > 0 else 0
+    )
 
     return {
         "period": {
@@ -474,7 +559,6 @@ def build_occupancy_report(start_date, end_date):
         "lowest_days": lowest_days,
         "daily": daily,
     }
-
 
 
 def build_occupancy_report_pdf(html_content):
@@ -592,7 +676,9 @@ def build_occupancy_report_xlsx(report_data):
         ("Dias no periodo", report_data["period"]["days"], "dias", "", ""),
     ]
     for item in report_data["summary"]:
-        summary_rows.append((item["label"], item["value"], item.get("unit", ""), "", ""))
+        summary_rows.append(
+            (item["label"], item["value"], item.get("unit", ""), "", "")
+        )
 
     row = header_row + 1
     for values in summary_rows:
@@ -606,7 +692,9 @@ def build_occupancy_report_xlsx(report_data):
 
     row += 1
     daily_header_row = row
-    table_headers = report_data.get("table", {}).get("headers", ["Data", "Valor", "Valor 2"])
+    table_headers = report_data.get("table", {}).get(
+        "headers", ["Data", "Valor", "Valor 2"]
+    )
     daily_headers = [header.upper() for header in table_headers[:5]]
     while len(daily_headers) < 5:
         daily_headers.append("")
@@ -619,7 +707,9 @@ def build_occupancy_report_xlsx(report_data):
 
     daily_start = daily_header_row + 1
     current = daily_start
-    table_keys = report_data.get("table", {}).get("keys", ["date", "primary", "secondary"])
+    table_keys = report_data.get("table", {}).get(
+        "keys", ["date", "primary", "secondary"]
+    )
     for item in report_data["daily"]:
         values = [item.get(key, "") for key in table_keys[:5]]
         while len(values) < 5:
@@ -627,7 +717,9 @@ def build_occupancy_report_xlsx(report_data):
         for col, value in enumerate(values, start=1):
             cell = ws.cell(row=current, column=col, value=value)
             cell.border = border
-            cell.fill = PatternFill(fill_type="solid", fgColor="FFFFFF" if current % 2 else "F8FAFC")
+            cell.fill = PatternFill(
+                fill_type="solid", fgColor="FFFFFF" if current % 2 else "F8FAFC"
+            )
             if col in (2, 3):
                 cell.alignment = Alignment(horizontal="center")
         current += 1
@@ -643,7 +735,13 @@ def build_occupancy_report_xlsx(report_data):
 
         categories = Reference(ws, min_col=1, min_row=daily_start, max_row=current - 1)
         max_series_col = min(len(table_keys), 4)
-        data = Reference(ws, min_col=2, max_col=max_series_col + 1, min_row=daily_start - 1, max_row=current - 1)
+        data = Reference(
+            ws,
+            min_col=2,
+            max_col=max_series_col + 1,
+            min_row=daily_start - 1,
+            max_row=current - 1,
+        )
         chart.add_data(data, titles_from_data=True, from_rows=False)
         chart.set_categories(categories)
         if max_series_col == 1:

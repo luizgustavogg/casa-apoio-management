@@ -27,27 +27,29 @@ class DashboardView(TemplateView):
                 name__icontains=search_query
             ).order_by("name")[:12]
 
-            checkin_search_results = Checkin.objects.filter(
-                Q(person__name__icontains=search_query)
-                | Q(companion__name__icontains=search_query)
-            ).select_related("person", "companion").order_by("-created_at")[:12]
+            checkin_search_results = (
+                Checkin.objects.filter(
+                    Q(person__name__icontains=search_query)
+                    | Q(companion__name__icontains=search_query)
+                )
+                .select_related("person", "companion")
+                .order_by("-created_at")[:12]
+            )
 
         # Contadores gerais
         total_people = Person.objects.count()
         total_active_checkins = Checkin.objects.filter(active=True).count()
         total_checkins = Checkin.objects.count()
-        
+
         # Informações de capacidade da casa
         house_config = HouseConfiguration.get_config()
         max_capacity = house_config.max_capacity
         available_vacancies = HouseConfiguration.get_available_vacancies()
         is_at_full_capacity = HouseConfiguration.is_at_full_capacity()
         capacity_rate = (
-            (total_active_checkins / max_capacity * 100)
-            if max_capacity > 0
-            else 0
+            (total_active_checkins / max_capacity * 100) if max_capacity > 0 else 0
         )
-        
+
         # Taxa de ocupação estimada (por número de pessoas)
         occupation_rate = (
             (total_active_checkins / max(total_people, 1)) * 100
@@ -97,13 +99,15 @@ class DashboardView(TemplateView):
                 "other": ("Outros", "fa-circle-question"),
             }
             label, icon = treatment_labels[key]
-            treatment_with_percentage.append({
-                "key": key,
-                "label": label,
-                "icon": icon,
-                "count": count,
-                "percentage": int(percentage)
-            })
+            treatment_with_percentage.append(
+                {
+                    "key": key,
+                    "label": label,
+                    "icon": icon,
+                    "count": count,
+                    "percentage": int(percentage),
+                }
+            )
 
         # Serviços da casa (últimas semanas - pessoas ativas)
         home_services_count = HomeServices.objects.filter(
@@ -116,17 +120,15 @@ class DashboardView(TemplateView):
         social_vacancies = Checkin.objects.filter(
             active=True, social_vacancy=True
         ).count()
-        
+
         # Dados para gráfico de tipo de check-in por dia (últimos 7 dias)
         seven_days_ago = timezone.now() - timedelta(days=7)
         daily_checkins = []
         labels_7days = []
-        
+
         for i in range(6, -1, -1):
             date = timezone.now().date() - timedelta(days=i)
-            count = Checkin.objects.filter(
-                created_at__date=date
-            ).count()
+            count = Checkin.objects.filter(created_at__date=date).count()
             daily_checkins.append(count)
             labels_7days.append(date.strftime("%d/%m"))
 
@@ -148,7 +150,11 @@ class DashboardView(TemplateView):
 
         if previous_checkins_7_days > 0:
             checkin_variation_rate = int(
-                ((new_checkins_7_days - previous_checkins_7_days) / previous_checkins_7_days) * 100
+                (
+                    (new_checkins_7_days - previous_checkins_7_days)
+                    / previous_checkins_7_days
+                )
+                * 100
             )
         else:
             checkin_variation_rate = 100 if new_checkins_7_days > 0 else 0
@@ -161,25 +167,30 @@ class DashboardView(TemplateView):
 
         capacity_rate_int = int(capacity_rate)
         capacity_rate_progress = min(capacity_rate_int, 100)
-        
+
         # Distribuição dos tipos de check-in para gráfico
         checkin_labels = []
         checkin_data = []
         colors_checkin = [
-            '#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#9b59b6', '#1abc9c'
+            "#3498db",
+            "#2ecc71",
+            "#f39c12",
+            "#e74c3c",
+            "#9b59b6",
+            "#1abc9c",
         ]
-        
+
         for idx, item in enumerate(checkin_reasons):
             reason_map = {
-                'patient': 'Paciente',
-                'companion': 'Acompanhante',
-                'professional': 'Profissional',
-                'voluntary': 'Voluntário',
-                'visitor': 'Visitante',
-                'other': 'Outro'
+                "patient": "Paciente",
+                "companion": "Acompanhante",
+                "professional": "Profissional",
+                "voluntary": "Voluntário",
+                "visitor": "Visitante",
+                "other": "Outro",
             }
-            checkin_labels.append(reason_map.get(item['reason'], item['reason']))
-            checkin_data.append(item['count'])
+            checkin_labels.append(reason_map.get(item["reason"], item["reason"]))
+            checkin_data.append(item["count"])
 
         context.update(
             {
@@ -206,8 +217,12 @@ class DashboardView(TemplateView):
                 "checkin_labels": json.dumps(checkin_labels),
                 "checkin_data": json.dumps(checkin_data),
                 "colors_checkin": json.dumps(colors_checkin),
-                "treatment_counts": json.dumps([item['count'] for item in treatment_with_percentage]),
-                "treatment_labels": json.dumps([item['label'] for item in treatment_with_percentage]),
+                "treatment_counts": json.dumps(
+                    [item["count"] for item in treatment_with_percentage]
+                ),
+                "treatment_labels": json.dumps(
+                    [item["label"] for item in treatment_with_percentage]
+                ),
                 "search_query": search_query,
                 "people_search_results": people_search_results,
                 "checkin_search_results": checkin_search_results,

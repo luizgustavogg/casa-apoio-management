@@ -1,118 +1,131 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>{{ report_data.title }}</title>
     <style>
-        @page {
-            size: A4;
-            margin: 24pt;
-        }
-        body {
-            font-family: Helvetica, Arial, sans-serif;
-            color: #1f2937;
-            font-size: 10.5pt;
-            line-height: 1.3;
-        }
-        .title {
-            font-size: 13pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 8pt;
-        }
-        .muted {
-            color: #475569;
-            margin-bottom: 14pt;
-        }
-        .section {
-            border: 1px solid #cbd5e1;
-            border-radius: 6pt;
-            padding: 10pt;
-            margin-bottom: 12pt;
-        }
-        .section-title {
-            font-size: 9pt;
-            font-weight: bold;
-            color: #334155;
-            text-transform: uppercase;
-            margin-bottom: 8pt;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-        th, td {
-            border: 1px solid #dbe3ee;
-            padding: 6pt;
-            vertical-align: top;
-            word-wrap: break-word;
-        }
-        th {
-            background: #eef3f9;
-            text-align: left;
-            font-weight: bold;
-            color: #334155;
-        }
-        .summary-label {
-            width: 45%;
-            color: #475569;
-            font-weight: bold;
-        }
-        .summary-value {
-            width: 55%;
-        }
-        .right {
-            text-align: right;
-        }
+      @page {
+        size: A4;
+        margin: 24pt;
+      }
+      body {
+        font-family: Helvetica, Arial, sans-serif;
+        color: #1f2937;
+        font-size: 10.5pt;
+        line-height: 1.3;
+      }
+      .title {
+        font-size: 13pt;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 8pt;
+      }
+      .muted {
+        color: #475569;
+        margin-bottom: 14pt;
+      }
+      .section {
+        border: 1px solid #cbd5e1;
+        border-radius: 6pt;
+        padding: 10pt;
+        margin-bottom: 12pt;
+      }
+      .section-title {
+        font-size: 9pt;
+        font-weight: bold;
+        color: #334155;
+        text-transform: uppercase;
+        margin-bottom: 8pt;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
+      th,
+      td {
+        border: 1px solid #dbe3ee;
+        padding: 6pt;
+        vertical-align: top;
+        word-wrap: break-word;
+      }
+      th {
+        background: #eef3f9;
+        text-align: left;
+        font-weight: bold;
+        color: #334155;
+      }
+      .summary-label {
+        width: 45%;
+        color: #475569;
+        font-weight: bold;
+      }
+      .summary-value {
+        width: 55%;
+      }
+      .right {
+        text-align: right;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="title">{{ report_data.title }} - Casa de Apoio</div>
-    <div class="muted">Periodo: {{ report_data.period.start_date }} ate {{ report_data.period.end_date }}</div>
+    <div class="muted">
+      Periodo: {{ report_data.period.start_date }} ate {{
+      report_data.period.end_date }}
+    </div>
 
     <div class="section">
-        <div class="section-title">Resumo</div>
-        <table>
-            <tr><td class="summary-label">Dias no periodo</td><td class="summary-value">{{ report_data.period.days }}</td></tr>
-            {% for item in report_data.summary %}
-            <tr><td class="summary-label">{{ item.label }}</td><td class="summary-value">{{ item.value }}{% if item.unit %} {{ item.unit }}{% endif %}</td></tr>
+      <div class="section-title">Resumo</div>
+      <table>
+        <tr>
+          <td class="summary-label">Dias no periodo</td>
+          <td class="summary-value">{{ report_data.period.days }}</td>
+        </tr>
+        {% for item in report_data.summary %}
+        <tr>
+          <td class="summary-label">{{ item.label }}</td>
+          <td class="summary-value">
+            {{ item.value }}{% if item.unit %} {{ item.unit }}{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Detalhamento diario</div>
+      <table>
+        <thead>
+          <tr>
+            {% for header in report_data.table.headers %}
+            <th class="right">{{ header }}</th>
             {% endfor %}
-        </table>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in report_data.daily %}
+          <tr>
+            {% for key in report_data.table.keys %}
+            <td class="right">
+              {% if key == 'date' %}{{ item.date }}{% endif %} {% if key ==
+              'primary' %}{{ item.primary }}{% endif %} {% if key == 'secondary'
+              %}{{ item.secondary }}{% endif %} {% if key == 'male' %}{{
+              item.male }}{% endif %} {% if key == 'female' %}{{ item.female
+              }}{% endif %} {% if key == 'other' %}{{ item.other }}{% endif %}
+              {% if key == 'total' %}{{ item.total }}{% endif %}
+            </td>
+            {% endfor %}
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="{{ report_data.table.headers|length }}">
+              Sem movimentacao no periodo.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-
-    <div class="section">
-        <div class="section-title">Detalhamento diario</div>
-        <table>
-            <thead>
-                <tr>
-                    {% for header in report_data.table.headers %}
-                    <th class="right">{{ header }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in report_data.daily %}
-                <tr>
-                    {% for key in report_data.table.keys %}
-                    <td class="right">
-                        {% if key == 'date' %}{{ item.date }}{% endif %}
-                        {% if key == 'primary' %}{{ item.primary }}{% endif %}
-                        {% if key == 'secondary' %}{{ item.secondary }}{% endif %}
-                        {% if key == 'male' %}{{ item.male }}{% endif %}
-                        {% if key == 'female' %}{{ item.female }}{% endif %}
-                        {% if key == 'other' %}{{ item.other }}{% endif %}
-                        {% if key == 'total' %}{{ item.total }}{% endif %}
-                    </td>
-                    {% endfor %}
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="{{ report_data.table.headers|length }}">Sem movimentacao no periodo.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</body>
+  </body>
 </html>

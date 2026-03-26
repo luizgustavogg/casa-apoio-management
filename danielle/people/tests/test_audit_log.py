@@ -25,17 +25,23 @@ class AuditLogTests(TestCase):
         self.assertIsNone(audit.before_data)
 
     def test_home_services_update_generates_field_history(self):
-        service = HomeServices.objects.create(person=self.person, lunch=True, dinner=False)
+        service = HomeServices.objects.create(
+            person=self.person, lunch=True, dinner=False
+        )
 
         service.dinner = True
         service.snack = True
         service.save()
 
-        audit = AuditLog.objects.filter(
-            action=AuditLog.ACTION_UPDATE,
-            entity="homeservices",
-            object_id=service.id,
-        ).order_by("-id").first()
+        audit = (
+            AuditLog.objects.filter(
+                action=AuditLog.ACTION_UPDATE,
+                entity="homeservices",
+                object_id=service.id,
+            )
+            .order_by("-id")
+            .first()
+        )
 
         self.assertIsNotNone(audit)
         self.assertIn("dinner", audit.changed_fields)

@@ -23,7 +23,9 @@ class AuditLogAPIViewTests(APITestCase):
         self.service.save()
 
         old_date = timezone.now() - timedelta(days=10)
-        AuditLog.objects.filter(entity="checkin", action="create").update(created_at=old_date)
+        AuditLog.objects.filter(entity="checkin", action="create").update(
+            created_at=old_date
+        )
 
     @staticmethod
     def setup_user():
@@ -81,14 +83,18 @@ class AuditLogHistoryViewTests(TestCase):
         checkin.save()
 
     def test_audit_history_page_renders_and_filters(self):
-        response = self.client.get("/audit-logs", {"entity": "checkin", "action": "update"})
+        response = self.client.get(
+            "/audit-logs", {"entity": "checkin", "action": "update"}
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Histórico de Alterações")
         self.assertContains(response, "checkin")
 
     def test_audit_history_page_exports_pdf(self):
-        response = self.client.get("/audit-logs", {"entity": "checkin", "export": "pdf"})
+        response = self.client.get(
+            "/audit-logs", {"entity": "checkin", "export": "pdf"}
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "application/pdf")

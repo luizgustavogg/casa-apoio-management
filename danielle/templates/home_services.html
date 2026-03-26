@@ -1,286 +1,758 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Serviços - Casa de Apoio</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
     <style>
-        :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --info: #1abc9c;
-            --dark: #2c3e50;
-            --light: #ecf0f1;
-            --bg: #f5f6fa;
-            --sidebar-width: 260px;
+      :root {
+        --primary: #667eea;
+        --secondary: #764ba2;
+        --success: #27ae60;
+        --warning: #f39c12;
+        --danger: #e74c3c;
+        --info: #1abc9c;
+        --dark: #2c3e50;
+        --light: #ecf0f1;
+        --bg: #f5f6fa;
+        --sidebar-width: 260px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--dark);
+        overflow-x: hidden;
+      }
+
+      body.sidebar-open {
+        overflow: hidden;
+      }
+
+      .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+        z-index: 999;
+      }
+      body.sidebar-open .sidebar-overlay {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: var(--sidebar-width);
+        height: 100vh;
+        background: linear-gradient(180deg, var(--dark) 0%, #34495e 100%);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        padding: 18px 14px;
+        box-shadow: 0 18px 40px rgba(44, 62, 80, 0.24);
+      }
+      .sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #fff;
+        padding: 10px 12px 20px;
+        border-bottom: 1px solid rgba(236, 240, 241, 0.12);
+      }
+      .sidebar-brand-badge {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #4da3ff, #2f80ed);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+      .sidebar-brand-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .sidebar-brand-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+      .sidebar-brand-subtitle {
+        font-size: 0.75rem;
+        color: rgba(236, 240, 241, 0.72);
+      }
+      .sidebar-icons {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 18px 0;
+        height: 100%;
+      }
+      .sidebar-section-title {
+        color: rgba(236, 240, 241, 0.55);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        padding: 12px 12px 8px;
+        text-transform: uppercase;
+      }
+      .sidebar-icon {
+        width: 100%;
+        min-height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #ecf0f1;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        padding: 0 14px;
+        font-weight: 600;
+      }
+      .sidebar-icon i {
+        width: 22px;
+        font-size: 1.25rem;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .sidebar-icon span {
+        white-space: nowrap;
+      }
+      .sidebar-icon:hover {
+        background: rgba(52, 152, 219, 0.2);
+        color: #3498db;
+      }
+      .sidebar-icon.active {
+        background: linear-gradient(135deg, #4da3ff, #2f80ed);
+        color: #fff;
+        box-shadow: 0 10px 18px rgba(47, 128, 237, 0.28);
+      }
+
+      .main-content {
+        margin-left: var(--sidebar-width);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-height: 100vh;
+      }
+      .main-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        background: white;
+        padding: 14px 18px;
+        border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      .menu-toggle {
+        width: 42px;
+        height: 42px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: #5b6574;
+        font-size: 1.35rem;
+        cursor: pointer;
+        display: none;
+      }
+      .menu-toggle:hover {
+        background: #eef3f8;
+      }
+      .topbar-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+      .topbar-meta-text {
+        min-width: 0;
+      }
+      .topbar-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #8b97a8;
+        font-weight: 700;
+      }
+      .topbar-title {
+        font-size: 1rem;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .navbar-top {
+        background: white;
+        padding: 20px 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .navbar-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+      }
+      .navbar-subtitle {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        margin-top: 5px;
+      }
+
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+      }
+      .kpi-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+        border-left: 4px solid;
+        position: relative;
+      }
+      .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      }
+      .kpi-card.primary {
+        border-left-color: var(--primary);
+      }
+      .kpi-card.success {
+        border-left-color: var(--success);
+      }
+      .kpi-card.warning {
+        border-left-color: var(--warning);
+      }
+      .kpi-card.danger {
+        border-left-color: var(--danger);
+      }
+      .kpi-card.info {
+        border-left-color: var(--info);
+      }
+      .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark);
+      }
+      .kpi-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #95a5a6;
+        margin-top: 8px;
+        font-weight: 600;
+      }
+      .kpi-icon {
+        position: absolute;
+        right: 14px;
+        top: 14px;
+        font-size: 2.2rem;
+        opacity: 0.1;
+      }
+
+      .search-panel {
+        background: white;
+        border-radius: 12px;
+        padding: 18px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      .search-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .search-input {
+        flex: 1;
+        min-width: 0;
+        border: 1px solid #d6dce5;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 0.95rem;
+        color: var(--dark);
+      }
+      .page-size-select {
+        border: 1px solid #d6dce5;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 0.95rem;
+        color: var(--dark);
+        background: #fff;
+      }
+      .search-btn {
+        border: 0;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #4da3ff, #2f80ed);
+        color: #fff;
+        font-weight: 700;
+        padding: 11px 16px;
+        cursor: pointer;
+      }
+      .search-clear {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 16px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: #4f5f73;
+        font-weight: 600;
+        background: #eef3f8;
+      }
+
+      .table-container {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        overflow-x: auto;
+      }
+      .table-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--light);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      thead th {
+        background: var(--light);
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--dark);
+        border-bottom: 2px solid #ddd;
+      }
+      tbody td {
+        padding: 15px;
+        border-bottom: 1px solid var(--light);
+      }
+      tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+      }
+
+      .service-badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin: 2px;
+      }
+      .service-active {
+        background: #d4edda;
+        color: #155724;
+      }
+      .service-inactive {
+        background: #e2e3e5;
+        color: #383d41;
+      }
+
+      .pagination {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        align-items: center;
+        margin-top: 18px;
+        flex-wrap: wrap;
+      }
+      .page-link {
+        min-width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #334155;
+        background: #eef3f8;
+        font-weight: 700;
+        padding: 0 10px;
+      }
+      .page-link.active {
+        background: linear-gradient(135deg, #4da3ff, #2f80ed);
+        color: #fff;
+      }
+      .page-link.disabled {
+        pointer-events: none;
+        opacity: 0.45;
+      }
+
+      @media (max-width: 768px) {
+        .menu-toggle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; background-color: var(--bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--dark); overflow-x: hidden; }
-
-        body.sidebar-open { overflow: hidden; }
-
-        .sidebar-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 999; }
-        body.sidebar-open .sidebar-overlay { opacity: 1; pointer-events: auto; }
-
-        .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100vh; background: linear-gradient(180deg, var(--dark) 0%, #34495e 100%); z-index: 1000; display: flex; flex-direction: column; padding: 18px 14px; box-shadow: 0 18px 40px rgba(44, 62, 80, 0.24); }
-        .sidebar-brand { display: flex; align-items: center; gap: 12px; color: #fff; padding: 10px 12px 20px; border-bottom: 1px solid rgba(236, 240, 241, 0.12); }
-        .sidebar-brand-badge { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #4da3ff, #2f80ed); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .sidebar-brand-text { display: flex; flex-direction: column; gap: 2px; }
-        .sidebar-brand-title { font-size: 0.95rem; font-weight: 700; }
-        .sidebar-brand-subtitle { font-size: 0.75rem; color: rgba(236, 240, 241, 0.72); }
-        .sidebar-icons { display: flex; flex-direction: column; gap: 8px; padding: 18px 0; height: 100%; }
-        .sidebar-section-title { color: rgba(236, 240, 241, 0.55); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; padding: 12px 12px 8px; text-transform: uppercase; }
-        .sidebar-icon { width: 100%; min-height: 50px; border-radius: 12px; display: flex; align-items: center; gap: 12px; color: #ecf0f1; font-size: 1rem; transition: all 0.3s ease; text-decoration: none; padding: 0 14px; font-weight: 600; }
-        .sidebar-icon i { width: 22px; font-size: 1.25rem; text-align: center; flex-shrink: 0; }
-        .sidebar-icon span { white-space: nowrap; }
-        .sidebar-icon:hover { background: rgba(52, 152, 219, 0.2); color: #3498db; }
-        .sidebar-icon.active { background: linear-gradient(135deg, #4da3ff, #2f80ed); color: #fff; box-shadow: 0 10px 18px rgba(47, 128, 237, 0.28); }
-
-        .main-content { margin-left: var(--sidebar-width); padding: 24px; display: flex; flex-direction: column; gap: 20px; min-height: 100vh; }
-        .main-topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: white; padding: 14px 18px; border-radius: 14px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
-        .menu-toggle { width: 42px; height: 42px; border: 0; border-radius: 10px; background: transparent; color: #5b6574; font-size: 1.35rem; cursor: pointer; display: none; }
-        .menu-toggle:hover { background: #eef3f8; }
-        .topbar-meta { display: flex; align-items: center; gap: 12px; min-width: 0; }
-        .topbar-meta-text { min-width: 0; }
-        .topbar-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #8b97a8; font-weight: 700; }
-        .topbar-title { font-size: 1rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .navbar-top { background: white; padding: 20px 30px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: center; }
-        .navbar-title { font-size: 1.8rem; font-weight: 700; }
-        .navbar-subtitle { font-size: 0.9rem; color: #7f8c8d; margin-top: 5px; }
-
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; }
-        .kpi-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; border-left: 4px solid; position: relative; }
-        .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
-        .kpi-card.primary { border-left-color: var(--primary); }
-        .kpi-card.success { border-left-color: var(--success); }
-        .kpi-card.warning { border-left-color: var(--warning); }
-        .kpi-card.danger { border-left-color: var(--danger); }
-        .kpi-card.info { border-left-color: var(--info); }
-        .kpi-value { font-size: 2rem; font-weight: 700; color: var(--dark); }
-        .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #95a5a6; margin-top: 8px; font-weight: 600; }
-        .kpi-icon { position: absolute; right: 14px; top: 14px; font-size: 2.2rem; opacity: 0.1; }
-
-        .search-panel { background: white; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
-        .search-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .search-input { flex: 1; min-width: 0; border: 1px solid #d6dce5; border-radius: 10px; padding: 11px 14px; font-size: 0.95rem; color: var(--dark); }
-        .page-size-select { border: 1px solid #d6dce5; border-radius: 10px; padding: 11px 14px; font-size: 0.95rem; color: var(--dark); background: #fff; }
-        .search-btn { border: 0; border-radius: 10px; background: linear-gradient(135deg, #4da3ff, #2f80ed); color: #fff; font-weight: 700; padding: 11px 16px; cursor: pointer; }
-        .search-clear { display: inline-flex; align-items: center; justify-content: center; padding: 11px 16px; border-radius: 10px; text-decoration: none; color: #4f5f73; font-weight: 600; background: #eef3f8; }
-
-        .table-container { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); overflow-x: auto; }
-        .table-title { font-size: 1.1rem; font-weight: 600; color: var(--dark); margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--light); }
-        table { width: 100%; border-collapse: collapse; }
-        thead th { background: var(--light); padding: 15px; text-align: left; font-weight: 600; color: var(--dark); border-bottom: 2px solid #ddd; }
-        tbody td { padding: 15px; border-bottom: 1px solid var(--light); }
-        tbody tr:hover { background: rgba(102, 126, 234, 0.05); }
-
-        .service-badge { display: inline-block; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; margin: 2px; }
-        .service-active { background: #d4edda; color: #155724; }
-        .service-inactive { background: #e2e3e5; color: #383d41; }
-
-        .pagination { display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 18px; flex-wrap: wrap; }
-        .page-link { min-width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: #334155; background: #eef3f8; font-weight: 700; padding: 0 10px; }
-        .page-link.active { background: linear-gradient(135deg, #4da3ff, #2f80ed); color: #fff; }
-        .page-link.disabled { pointer-events: none; opacity: 0.45; }
-
-        @media (max-width: 768px) {
-            .menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
-            .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
-            body.sidebar-open .sidebar { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 15px; }
-            .kpi-grid { grid-template-columns: 1fr; gap: 15px; }
-            .navbar-top { flex-direction: column; text-align: center; gap: 15px; }
-            .main-topbar { padding: 12px 14px; }
-            .kpi-value { font-size: 1.5rem; }
-            .search-form { flex-direction: column; align-items: stretch; }
-            .search-btn, .search-clear { width: 100%; justify-content: center; }
-            .table-container { padding: 16px; }
-            table { font-size: 0.9rem; }
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.25s ease;
         }
+        body.sidebar-open .sidebar {
+          transform: translateX(0);
+        }
+        .main-content {
+          margin-left: 0;
+          padding: 15px;
+        }
+        .kpi-grid {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+        .navbar-top {
+          flex-direction: column;
+          text-align: center;
+          gap: 15px;
+        }
+        .main-topbar {
+          padding: 12px 14px;
+        }
+        .kpi-value {
+          font-size: 1.5rem;
+        }
+        .search-form {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .search-btn,
+        .search-clear {
+          width: 100%;
+          justify-content: center;
+        }
+        .table-container {
+          padding: 16px;
+        }
+        table {
+          font-size: 0.9rem;
+        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="sidebar-overlay" data-sidebar-close></div>
     <!-- Sidebar -->
     <div class="sidebar">
-        <div class="sidebar-brand">
-            <div class="sidebar-brand-badge"><i class="fa-solid fa-house-medical"></i></div>
-            <div class="sidebar-brand-text">
-                <div class="sidebar-brand-title">Casa de Apoio</div>
-                <div class="sidebar-brand-subtitle">Painel administrativo</div>
-            </div>
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-badge">
+          <i class="fa-solid fa-house-medical"></i>
         </div>
-        <div class="sidebar-icons">
-            <div class="sidebar-section-title">Navegação</div>
-            <a href="/dashboard" class="sidebar-icon" title="Dashboard" data-page="dashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
-            <a href="/pessoas" class="sidebar-icon" title="Pessoas" data-page="pessoas"><i class="fa-solid fa-users"></i><span>Pessoas</span></a>
-            <a href="/checkins" class="sidebar-icon" title="Check-ins" data-page="checkins"><i class="fa-solid fa-circle-check"></i><span>Check-ins</span></a>
-            <a href="/home-services" class="sidebar-icon active" title="Utilizações" data-page="home_services"><i class="fa-solid fa-hospital"></i><span>Utilizações</span></a>
-            <a href="/reports" class="sidebar-icon" title="Relatórios" data-page="reports"><i class="fa-solid fa-file-lines"></i><span>Relatórios</span></a>
-            <a href="/audit-logs" class="sidebar-icon" title="Histórico" data-page="audit_logs"><i class="fa-solid fa-clock-rotate-left"></i><span>Histórico</span></a>
-            <a href="/admin/" class="sidebar-icon" title="Configurações" data-page="admin"><i class="fa-solid fa-gear"></i><span>Configurações</span></a>
+        <div class="sidebar-brand-text">
+          <div class="sidebar-brand-title">Casa de Apoio</div>
+          <div class="sidebar-brand-subtitle">Painel administrativo</div>
         </div>
+      </div>
+      <div class="sidebar-icons">
+        <div class="sidebar-section-title">Navegação</div>
+        <a
+          href="/dashboard"
+          class="sidebar-icon"
+          title="Dashboard"
+          data-page="dashboard"
+          ><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a
+        >
+        <a
+          href="/pessoas"
+          class="sidebar-icon"
+          title="Pessoas"
+          data-page="pessoas"
+          ><i class="fa-solid fa-users"></i><span>Pessoas</span></a
+        >
+        <a
+          href="/checkins"
+          class="sidebar-icon"
+          title="Check-ins"
+          data-page="checkins"
+          ><i class="fa-solid fa-circle-check"></i><span>Check-ins</span></a
+        >
+        <a
+          href="/home-services"
+          class="sidebar-icon active"
+          title="Utilizações"
+          data-page="home_services"
+          ><i class="fa-solid fa-hospital"></i><span>Utilizações</span></a
+        >
+        <a
+          href="/reports"
+          class="sidebar-icon"
+          title="Relatórios"
+          data-page="reports"
+          ><i class="fa-solid fa-file-lines"></i><span>Relatórios</span></a
+        >
+        <a
+          href="/audit-logs"
+          class="sidebar-icon"
+          title="Histórico"
+          data-page="audit_logs"
+          ><i class="fa-solid fa-clock-rotate-left"></i
+          ><span>Histórico</span></a
+        >
+        <a
+          href="/admin/"
+          class="sidebar-icon"
+          title="Configurações"
+          data-page="admin"
+          ><i class="fa-solid fa-gear"></i><span>Configurações</span></a
+        >
+      </div>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <div class="main-topbar">
-            <div class="topbar-meta">
-                <button class="menu-toggle" type="button" aria-label="Abrir menu" data-sidebar-toggle>
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-                <div class="topbar-meta-text">
-                    <div class="topbar-label">Painel</div>
-                    <div class="topbar-title">Serviços Domiciliares</div>
-                </div>
-            </div>
+      <div class="main-topbar">
+        <div class="topbar-meta">
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-label="Abrir menu"
+            data-sidebar-toggle
+          >
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar-meta-text">
+            <div class="topbar-label">Painel</div>
+            <div class="topbar-title">Serviços Domiciliares</div>
+          </div>
         </div>
-        <!-- Top Navbar -->
-        <div class="navbar-top">
-            <div>
-                <div class="navbar-title">Serviços Domiciliares</div>
-                <div class="navbar-subtitle">Refeições e hospedagem | Casa de Apoio</div>
-            </div>
-            <div class="topbar-label">Listagem</div>
+      </div>
+      <!-- Top Navbar -->
+      <div class="navbar-top">
+        <div>
+          <div class="navbar-title">Serviços Domiciliares</div>
+          <div class="navbar-subtitle">
+            Refeições e hospedagem | Casa de Apoio
+          </div>
         </div>
+        <div class="topbar-label">Listagem</div>
+      </div>
 
-        <div class="search-panel">
-            <form class="search-form" method="get" action="/home-services">
-                <input class="search-input" type="text" name="q" value="{{ search_query }}" placeholder="Buscar por nome da pessoa">
-                <select class="page-size-select" name="per_page">
-                    {% for option in per_page_options %}
-                    <option value="{{ option }}" {% if per_page == option %}selected{% endif %}>{{ option }} por pagina</option>
-                    {% endfor %}
-                </select>
-                <button class="search-btn" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
-                {% if search_query %}
-                    <a class="search-clear" href="/home-services"><i class="fa-regular fa-circle-xmark"></i>&nbsp;Limpar</a>
+      <div class="search-panel">
+        <form class="search-form" method="get" action="/home-services">
+          <input
+            class="search-input"
+            type="text"
+            name="q"
+            value="{{ search_query }}"
+            placeholder="Buscar por nome da pessoa"
+          />
+          <select class="page-size-select" name="per_page">
+            {% for option in per_page_options %}
+            <option
+              value="{{ option }}"
+              {%
+              if
+              per_page=""
+              ="option"
+              %}selected{%
+              endif
+              %}
+            >
+              {{ option }} por pagina
+            </option>
+            {% endfor %}
+          </select>
+          <button class="search-btn" type="submit">
+            <i class="fa-solid fa-magnifying-glass"></i> Buscar
+          </button>
+          {% if search_query %}
+          <a class="search-clear" href="/home-services"
+            ><i class="fa-regular fa-circle-xmark"></i>&nbsp;Limpar</a
+          >
+          {% endif %}
+        </form>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card primary">
+          <i class="fa-solid fa-clipboard-list kpi-icon"></i>
+          <div class="kpi-value">{{ total_servicos }}</div>
+          <div class="kpi-label">Total de Registros</div>
+        </div>
+        <div class="kpi-card success">
+          <i class="fa-solid fa-mug-hot kpi-icon"></i>
+          <div class="kpi-value">{{ cafe_manha }}</div>
+          <div class="kpi-label">Café da Manhã</div>
+        </div>
+        <div class="kpi-card warning">
+          <i class="fa-solid fa-utensils kpi-icon"></i>
+          <div class="kpi-value">{{ almoco }}</div>
+          <div class="kpi-label">Almoço</div>
+        </div>
+        <div class="kpi-card info">
+          <i class="fa-solid fa-cookie-bite kpi-icon"></i>
+          <div class="kpi-value">{{ lanche }}</div>
+          <div class="kpi-label">Lanche</div>
+        </div>
+        <div class="kpi-card danger">
+          <i class="fa-solid fa-moon kpi-icon"></i>
+          <div class="kpi-value">{{ jantar }}</div>
+          <div class="kpi-label">Jantar</div>
+        </div>
+        <div class="kpi-card primary">
+          <i class="fa-solid fa-shower kpi-icon"></i>
+          <div class="kpi-value">{{ banho }}</div>
+          <div class="kpi-label">Banho</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <div class="table-title">Serviços Registrados</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Pessoa</th>
+              <th>Serviços Prestados</th>
+              <th>Data do Registro</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for servico in servicos %}
+            <tr>
+              <td><strong>{{ servico.person_name }}</strong></td>
+              <td>
+                {% if servico.breakfast %}<span
+                  class="service-badge service-active"
+                  ><i class="fa-solid fa-mug-saucer"></i> Café</span
+                >{% endif %} {% if servico.lunch %}<span
+                  class="service-badge service-active"
+                  ><i class="fa-solid fa-utensils"></i> Almoço</span
+                >{% endif %} {% if servico.snack %}<span
+                  class="service-badge service-active"
+                  ><i class="fa-solid fa-cookie-bite"></i> Lanche</span
+                >{% endif %} {% if servico.dinner %}<span
+                  class="service-badge service-active"
+                  ><i class="fa-solid fa-moon"></i> Jantar</span
+                >{% endif %} {% if servico.shower %}<span
+                  class="service-badge service-active"
+                  ><i class="fa-solid fa-shower"></i> Banho</span
+                >{% endif %} {% if servico.sleep %}<span
+                  class="service-badge service-active"
+                  ><i class="fa-solid fa-bed"></i> Pernoite</span
+                >{% endif %} {% if not servico.breakfast and not servico.lunch
+                and not servico.snack and not servico.dinner and not
+                servico.shower and not servico.sleep %}
+                <span class="service-badge service-inactive"
+                  >— Nenhum serviço</span
+                >
                 {% endif %}
-            </form>
-        </div>
+              </td>
+              <td>{{ servico.created_at|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3" style="text-align: center; color: #95a5a6">
+                Nenhum serviço registrado
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
 
-        <!-- KPI Cards -->
-        <div class="kpi-grid">
-            <div class="kpi-card primary">
-                <i class="fa-solid fa-clipboard-list kpi-icon"></i>
-                <div class="kpi-value">{{ total_servicos }}</div>
-                <div class="kpi-label">Total de Registros</div>
-            </div>
-            <div class="kpi-card success">
-                <i class="fa-solid fa-mug-hot kpi-icon"></i>
-                <div class="kpi-value">{{ cafe_manha }}</div>
-                <div class="kpi-label">Café da Manhã</div>
-            </div>
-            <div class="kpi-card warning">
-                <i class="fa-solid fa-utensils kpi-icon"></i>
-                <div class="kpi-value">{{ almoco }}</div>
-                <div class="kpi-label">Almoço</div>
-            </div>
-            <div class="kpi-card info">
-                <i class="fa-solid fa-cookie-bite kpi-icon"></i>
-                <div class="kpi-value">{{ lanche }}</div>
-                <div class="kpi-label">Lanche</div>
-            </div>
-            <div class="kpi-card danger">
-                <i class="fa-solid fa-moon kpi-icon"></i>
-                <div class="kpi-value">{{ jantar }}</div>
-                <div class="kpi-label">Jantar</div>
-            </div>
-            <div class="kpi-card primary">
-                <i class="fa-solid fa-shower kpi-icon"></i>
-                <div class="kpi-value">{{ banho }}</div>
-                <div class="kpi-label">Banho</div>
-            </div>
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination">
+          <a
+            class="page-link {% if not page_obj.has_previous %}disabled{% endif %}"
+            href="{% if page_obj.has_previous %}/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1{% else %}#{% endif %}"
+            >«</a
+          >
+          <a
+            class="page-link {% if not page_obj.has_previous %}disabled{% endif %}"
+            href="{% if page_obj.has_previous %}/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}{% else %}#{% endif %}"
+            >‹</a
+          >
+          {% for num in page_obj.paginator.page_range %} {% if num >=
+          page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+          <a
+            class="page-link {% if page_obj.number == num %}active{% endif %}"
+            href="/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ num }}"
+            >{{ num }}</a
+          >
+          {% endif %} {% endfor %}
+          <a
+            class="page-link {% if not page_obj.has_next %}disabled{% endif %}"
+            href="{% if page_obj.has_next %}/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}{% else %}#{% endif %}"
+            >›</a
+          >
+          <a
+            class="page-link {% if not page_obj.has_next %}disabled{% endif %}"
+            href="{% if page_obj.has_next %}/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}{% else %}#{% endif %}"
+            >»</a
+          >
         </div>
-
-        <!-- Table -->
-        <div class="table-container">
-            <div class="table-title">Serviços Registrados</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Pessoa</th>
-                        <th>Serviços Prestados</th>
-                        <th>Data do Registro</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for servico in servicos %}
-                    <tr>
-                        <td><strong>{{ servico.person_name }}</strong></td>
-                        <td>
-                            {% if servico.breakfast %}<span class="service-badge service-active"><i class="fa-solid fa-mug-saucer"></i> Café</span>{% endif %}
-                            {% if servico.lunch %}<span class="service-badge service-active"><i class="fa-solid fa-utensils"></i> Almoço</span>{% endif %}
-                            {% if servico.snack %}<span class="service-badge service-active"><i class="fa-solid fa-cookie-bite"></i> Lanche</span>{% endif %}
-                            {% if servico.dinner %}<span class="service-badge service-active"><i class="fa-solid fa-moon"></i> Jantar</span>{% endif %}
-                            {% if servico.shower %}<span class="service-badge service-active"><i class="fa-solid fa-shower"></i> Banho</span>{% endif %}
-                            {% if servico.sleep %}<span class="service-badge service-active"><i class="fa-solid fa-bed"></i> Pernoite</span>{% endif %}
-                            {% if not servico.breakfast and not servico.lunch and not servico.snack and not servico.dinner and not servico.shower and not servico.sleep %}
-                                <span class="service-badge service-inactive">— Nenhum serviço</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ servico.created_at|date:"d/m/Y H:i" }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="3" style="text-align: center; color: #95a5a6;">Nenhum serviço registrado</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-            {% if page_obj.paginator.num_pages > 1 %}
-            <div class="pagination">
-                <a class="page-link {% if not page_obj.has_previous %}disabled{% endif %}" href="{% if page_obj.has_previous %}/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1{% else %}#{% endif %}">«</a>
-                <a class="page-link {% if not page_obj.has_previous %}disabled{% endif %}" href="{% if page_obj.has_previous %}/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}{% else %}#{% endif %}">‹</a>
-                {% for num in page_obj.paginator.page_range %}
-                    {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-                        <a class="page-link {% if page_obj.number == num %}active{% endif %}" href="/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ num }}">{{ num }}</a>
-                    {% endif %}
-                {% endfor %}
-                <a class="page-link {% if not page_obj.has_next %}disabled{% endif %}" href="{% if page_obj.has_next %}/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}{% else %}#{% endif %}">›</a>
-                <a class="page-link {% if not page_obj.has_next %}disabled{% endif %}" href="{% if page_obj.has_next %}/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}{% else %}#{% endif %}">»</a>
-            </div>
-            {% endif %}
-        </div>
+        {% endif %}
+      </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const body = document.body;
-            const currentPath = window.location.pathname;
-            const sidebarIcons = document.querySelectorAll('.sidebar-icon');
-            const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
-            const sidebarClose = document.querySelector('[data-sidebar-close]');
-            
-            sidebarIcons.forEach(icon => {
-                const href = icon.getAttribute('href');
-                if (href === '/admin/' ? currentPath.startsWith('/admin') : currentPath === href) {
-                    icon.classList.add('active');
-                } else {
-                    icon.classList.remove('active');
-                }
+      document.addEventListener("DOMContentLoaded", function () {
+        const body = document.body;
+        const currentPath = window.location.pathname;
+        const sidebarIcons = document.querySelectorAll(".sidebar-icon");
+        const sidebarToggle = document.querySelector("[data-sidebar-toggle]");
+        const sidebarClose = document.querySelector("[data-sidebar-close]");
 
-                icon.addEventListener('click', function() {
-                    body.classList.remove('sidebar-open');
-                });
-            });
+        sidebarIcons.forEach((icon) => {
+          const href = icon.getAttribute("href");
+          if (
+            href === "/admin/"
+              ? currentPath.startsWith("/admin")
+              : currentPath === href
+          ) {
+            icon.classList.add("active");
+          } else {
+            icon.classList.remove("active");
+          }
 
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    body.classList.toggle('sidebar-open');
-                });
-            }
-
-            if (sidebarClose) {
-                sidebarClose.addEventListener('click', function() {
-                    body.classList.remove('sidebar-open');
-                });
-            }
+          icon.addEventListener("click", function () {
+            body.classList.remove("sidebar-open");
+          });
         });
+
+        if (sidebarToggle) {
+          sidebarToggle.addEventListener("click", function () {
+            body.classList.toggle("sidebar-open");
+          });
+        }
+
+        if (sidebarClose) {
+          sidebarClose.addEventListener("click", function () {
+            body.classList.remove("sidebar-open");
+          });
+        }
+      });
     </script>
-</body>
+  </body>
 </html>

@@ -1,402 +1,856 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Relatorios - Casa de Apoio</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <style>
-        :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --info: #1abc9c;
-            --dark: #2c3e50;
-            --light: #ecf0f1;
-            --bg: #f5f6fa;
-            --sidebar-width: 260px;
-            --card-radius: 14px;
+      :root {
+        --primary: #667eea;
+        --secondary: #764ba2;
+        --success: #27ae60;
+        --warning: #f39c12;
+        --danger: #e74c3c;
+        --info: #1abc9c;
+        --dark: #2c3e50;
+        --light: #ecf0f1;
+        --bg: #f5f6fa;
+        --sidebar-width: 260px;
+        --card-radius: 14px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--dark);
+        overflow-x: hidden;
+      }
+
+      body.sidebar-open {
+        overflow: hidden;
+      }
+      .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+        z-index: 999;
+      }
+      body.sidebar-open .sidebar-overlay {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: var(--sidebar-width);
+        height: 100vh;
+        background: linear-gradient(180deg, var(--dark) 0%, #34495e 100%);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        padding: 18px 14px;
+        box-shadow: 0 18px 40px rgba(44, 62, 80, 0.24);
+      }
+      .sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #fff;
+        padding: 10px 12px 20px;
+        border-bottom: 1px solid rgba(236, 240, 241, 0.12);
+      }
+      .sidebar-brand-badge {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #4da3ff, #2f80ed);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+      .sidebar-brand-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .sidebar-brand-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+      .sidebar-brand-subtitle {
+        font-size: 0.75rem;
+        color: rgba(236, 240, 241, 0.72);
+      }
+      .sidebar-icons {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 18px 0;
+        height: 100%;
+      }
+      .sidebar-section-title {
+        color: rgba(236, 240, 241, 0.55);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        padding: 12px 12px 8px;
+        text-transform: uppercase;
+      }
+      .sidebar-icon {
+        width: 100%;
+        min-height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #ecf0f1;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        padding: 0 14px;
+        font-weight: 600;
+      }
+      .sidebar-icon i {
+        width: 22px;
+        font-size: 1.25rem;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .sidebar-icon span {
+        white-space: nowrap;
+      }
+      .sidebar-icon:hover {
+        background: rgba(52, 152, 219, 0.2);
+        color: #3498db;
+      }
+      .sidebar-icon.active {
+        background: linear-gradient(135deg, #4da3ff, #2f80ed);
+        color: #fff;
+        box-shadow: 0 10px 18px rgba(47, 128, 237, 0.28);
+      }
+
+      .main-content {
+        margin-left: var(--sidebar-width);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-height: 100vh;
+      }
+      .main-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        background: white;
+        padding: 14px 18px;
+        border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      .menu-toggle {
+        width: 42px;
+        height: 42px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: #5b6574;
+        font-size: 1.35rem;
+        cursor: pointer;
+        display: none;
+      }
+      .menu-toggle:hover {
+        background: #eef3f8;
+      }
+      .topbar-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+      .topbar-meta-text {
+        min-width: 0;
+      }
+      .topbar-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #8b97a8;
+        font-weight: 700;
+      }
+      .topbar-title {
+        font-size: 1rem;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .navbar-top {
+        background: white;
+        padding: 20px 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .navbar-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+      }
+      .navbar-subtitle {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        margin-top: 5px;
+      }
+
+      .panel {
+        background: white;
+        border-radius: var(--card-radius);
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      .panel-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: #1e293b;
+      }
+      .panel-subtitle {
+        font-size: 0.86rem;
+        color: #64748b;
+        margin-top: -10px;
+        margin-bottom: 16px;
+      }
+
+      .filter-grid {
+        display: grid;
+        grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) minmax(
+            180px,
+            1fr
+          ) minmax(160px, 1fr) auto;
+        gap: 10px;
+        align-items: end;
+      }
+      .filters-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+      .field-label {
+        font-size: 0.85rem;
+        color: #5f6f83;
+        margin-bottom: 5px;
+        display: block;
+      }
+      .field-input {
+        width: 100%;
+        border: 1px solid #d6dce5;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-weight: 400;
+        color: #1e293b;
+      }
+      .field-input:focus {
+        outline: 0;
+        border-color: #8ab8ff;
+        box-shadow: 0 0 0 3px rgba(77, 163, 255, 0.18);
+      }
+      .btn {
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        white-space: nowrap;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #4da3ff, #2f80ed);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        filter: brightness(1.04);
+      }
+      .btn-secondary {
+        background: #eef3f8;
+        color: #334155;
+      }
+      .btn-secondary:hover {
+        background: #e4ebf3;
+      }
+
+      .period-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 0.82rem;
+        font-weight: 700;
+        margin-bottom: 14px;
+      }
+      .period-badge strong {
+        color: #1e293b;
+      }
+
+      .report-sheet {
+        background: #ffffff;
+        border: 1px solid #dbe4ef;
+        border-radius: 12px;
+        padding: 22px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      .report-header {
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 14px;
+        margin-bottom: 14px;
+      }
+      .report-title {
+        font-size: 1.02rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #0f172a;
+      }
+      .report-meta {
+        margin-top: 8px;
+        color: #64748b;
+        font-size: 0.86rem;
+      }
+      .report-section {
+        margin-top: 18px;
+      }
+      .report-section-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #475569;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(240px, 1fr));
+        gap: 10px 22px;
+      }
+      .summary-item {
+        display: grid;
+        grid-template-columns: 190px 1fr;
+        gap: 10px;
+        align-items: baseline;
+        padding: 7px 0;
+        border-bottom: 1px dashed #e2e8f0;
+      }
+      .summary-label {
+        font-size: 0.86rem;
+        color: #64748b;
+      }
+      .summary-value {
+        font-size: 0.92rem;
+        color: #0f172a;
+        font-weight: 600;
+        word-break: break-word;
+      }
+
+      .chart-wrap {
+        height: 280px;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      thead th {
+        text-align: left;
+        background: #f1f5f9;
+        padding: 12px;
+        font-weight: 700;
+        color: #334155;
+      }
+      tbody tr:nth-child(even) {
+        background: #fbfdff;
+      }
+      tbody td {
+        padding: 12px;
+        border-bottom: 1px solid #e5edf7;
+        color: #334155;
+      }
+      .rate-cell {
+        min-width: 180px;
+      }
+      .rate-bar {
+        height: 8px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        overflow: hidden;
+        margin-top: 6px;
+      }
+      .rate-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #60a5fa, #2563eb);
+      }
+      .empty-state {
+        text-align: center;
+        color: #64748b;
+        padding: 26px 12px;
+      }
+      .pagination {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        align-items: center;
+        margin-top: 18px;
+        flex-wrap: wrap;
+      }
+      .page-link {
+        min-width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #334155;
+        background: #eef3f8;
+        font-weight: 700;
+        padding: 0 10px;
+      }
+      .page-link.active {
+        background: linear-gradient(135deg, #4da3ff, #2f80ed);
+        color: #fff;
+      }
+      .page-link.disabled {
+        pointer-events: none;
+        opacity: 0.45;
+      }
+
+      @media (max-width: 768px) {
+        .menu-toggle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; background-color: var(--bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--dark); overflow-x: hidden; }
-
-        body.sidebar-open { overflow: hidden; }
-        .sidebar-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 999; }
-        body.sidebar-open .sidebar-overlay { opacity: 1; pointer-events: auto; }
-
-        .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100vh; background: linear-gradient(180deg, var(--dark) 0%, #34495e 100%); z-index: 1000; display: flex; flex-direction: column; padding: 18px 14px; box-shadow: 0 18px 40px rgba(44, 62, 80, 0.24); }
-        .sidebar-brand { display: flex; align-items: center; gap: 12px; color: #fff; padding: 10px 12px 20px; border-bottom: 1px solid rgba(236, 240, 241, 0.12); }
-        .sidebar-brand-badge { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #4da3ff, #2f80ed); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .sidebar-brand-text { display: flex; flex-direction: column; gap: 2px; }
-        .sidebar-brand-title { font-size: 0.95rem; font-weight: 700; }
-        .sidebar-brand-subtitle { font-size: 0.75rem; color: rgba(236, 240, 241, 0.72); }
-        .sidebar-icons { display: flex; flex-direction: column; gap: 8px; padding: 18px 0; height: 100%; }
-        .sidebar-section-title { color: rgba(236, 240, 241, 0.55); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; padding: 12px 12px 8px; text-transform: uppercase; }
-        .sidebar-icon { width: 100%; min-height: 50px; border-radius: 12px; display: flex; align-items: center; gap: 12px; color: #ecf0f1; font-size: 1rem; transition: all 0.3s ease; text-decoration: none; padding: 0 14px; font-weight: 600; }
-        .sidebar-icon i { width: 22px; font-size: 1.25rem; text-align: center; flex-shrink: 0; }
-        .sidebar-icon span { white-space: nowrap; }
-        .sidebar-icon:hover { background: rgba(52, 152, 219, 0.2); color: #3498db; }
-        .sidebar-icon.active { background: linear-gradient(135deg, #4da3ff, #2f80ed); color: #fff; box-shadow: 0 10px 18px rgba(47, 128, 237, 0.28); }
-
-        .main-content { margin-left: var(--sidebar-width); padding: 24px; display: flex; flex-direction: column; gap: 20px; min-height: 100vh; }
-        .main-topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: white; padding: 14px 18px; border-radius: 14px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
-        .menu-toggle { width: 42px; height: 42px; border: 0; border-radius: 10px; background: transparent; color: #5b6574; font-size: 1.35rem; cursor: pointer; display: none; }
-        .menu-toggle:hover { background: #eef3f8; }
-        .topbar-meta { display: flex; align-items: center; gap: 12px; min-width: 0; }
-        .topbar-meta-text { min-width: 0; }
-        .topbar-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #8b97a8; font-weight: 700; }
-        .topbar-title { font-size: 1rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .navbar-top { background: white; padding: 20px 30px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: center; }
-        .navbar-title { font-size: 1.8rem; font-weight: 700; }
-        .navbar-subtitle { font-size: 0.9rem; color: #7f8c8d; margin-top: 5px; }
-
-        .panel { background: white; border-radius: var(--card-radius); padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
-        .panel-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: #1e293b; }
-        .panel-subtitle { font-size: 0.86rem; color: #64748b; margin-top: -10px; margin-bottom: 16px; }
-
-        .filter-grid { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(150px, 1fr) minmax(180px, 1fr) minmax(160px, 1fr) auto; gap: 10px; align-items: end; }
-        .filters-actions { display: flex; gap: 10px; justify-content: flex-end; }
-        .field-label { font-size: 0.85rem; color: #5f6f83; margin-bottom: 5px; display: block; }
-        .field-input { width: 100%; border: 1px solid #d6dce5; border-radius: 10px; padding: 10px 12px; font-weight: 400; color: #1e293b; }
-        .field-input:focus { outline: 0; border-color: #8ab8ff; box-shadow: 0 0 0 3px rgba(77, 163, 255, 0.18); }
-        .btn { border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
-        .btn-primary { background: linear-gradient(135deg, #4da3ff, #2f80ed); color: #fff; }
-        .btn-primary:hover { filter: brightness(1.04); }
-        .btn-secondary { background: #eef3f8; color: #334155; }
-        .btn-secondary:hover { background: #e4ebf3; }
-
-        .period-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: #eff6ff; color: #1d4ed8; font-size: 0.82rem; font-weight: 700; margin-bottom: 14px; }
-        .period-badge strong { color: #1e293b; }
-
-        .report-sheet {
-            background: #ffffff;
-            border: 1px solid #dbe4ef;
-            border-radius: 12px;
-            padding: 22px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        .sidebar {
+          transform: translateX(-100%);
+          transition: transform 0.25s ease;
         }
-        .report-header {
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 14px;
-            margin-bottom: 14px;
+        body.sidebar-open .sidebar {
+          transform: translateX(0);
         }
-        .report-title {
-            font-size: 1.02rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #0f172a;
+        .main-content {
+          margin-left: 0;
+          padding: 15px;
         }
-        .report-meta {
-            margin-top: 8px;
-            color: #64748b;
-            font-size: 0.86rem;
+        .navbar-top {
+          flex-direction: column;
+          text-align: center;
+          gap: 15px;
         }
-        .report-section {
-            margin-top: 18px;
+        .filter-grid {
+          grid-template-columns: 1fr;
         }
-        .report-section-title {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #475569;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            margin-bottom: 10px;
+        .filters-actions {
+          justify-content: stretch;
+          flex-wrap: wrap;
+        }
+        .filters-actions .btn {
+          flex: 1;
         }
         .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(240px, 1fr));
-            gap: 10px 22px;
+          grid-template-columns: 1fr;
         }
         .summary-item {
-            display: grid;
-            grid-template-columns: 190px 1fr;
-            gap: 10px;
-            align-items: baseline;
-            padding: 7px 0;
-            border-bottom: 1px dashed #e2e8f0;
+          grid-template-columns: 1fr;
+          gap: 2px;
         }
-        .summary-label {
-            font-size: 0.86rem;
-            color: #64748b;
+        .chart-wrap {
+          height: 250px;
         }
-        .summary-value {
-            font-size: 0.92rem;
-            color: #0f172a;
-            font-weight: 600;
-            word-break: break-word;
-        }
-
-        .chart-wrap { height: 280px; }
-        .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        thead th { text-align: left; background: #f1f5f9; padding: 12px; font-weight: 700; color: #334155; }
-        tbody tr:nth-child(even) { background: #fbfdff; }
-        tbody td { padding: 12px; border-bottom: 1px solid #e5edf7; color: #334155; }
-        .rate-cell { min-width: 180px; }
-        .rate-bar { height: 8px; border-radius: 999px; background: #e2e8f0; overflow: hidden; margin-top: 6px; }
-        .rate-fill { height: 100%; border-radius: 999px; background: linear-gradient(135deg, #60a5fa, #2563eb); }
-        .empty-state { text-align: center; color: #64748b; padding: 26px 12px; }
-        .pagination { display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 18px; flex-wrap: wrap; }
-        .page-link { min-width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; color: #334155; background: #eef3f8; font-weight: 700; padding: 0 10px; }
-        .page-link.active { background: linear-gradient(135deg, #4da3ff, #2f80ed); color: #fff; }
-        .page-link.disabled { pointer-events: none; opacity: 0.45; }
-
-        @media (max-width: 768px) {
-            .menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
-            .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
-            body.sidebar-open .sidebar { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 15px; }
-            .navbar-top { flex-direction: column; text-align: center; gap: 15px; }
-            .filter-grid { grid-template-columns: 1fr; }
-            .filters-actions { justify-content: stretch; flex-wrap: wrap; }
-            .filters-actions .btn { flex: 1; }
-            .summary-grid { grid-template-columns: 1fr; }
-            .summary-item { grid-template-columns: 1fr; gap: 2px; }
-            .chart-wrap { height: 250px; }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="sidebar-overlay" data-sidebar-close></div>
     <div class="sidebar">
-        <div class="sidebar-brand">
-            <div class="sidebar-brand-badge"><i class="fa-solid fa-house-medical"></i></div>
-            <div class="sidebar-brand-text">
-                <div class="sidebar-brand-title">Casa de Apoio</div>
-                <div class="sidebar-brand-subtitle">Painel administrativo</div>
-            </div>
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-badge">
+          <i class="fa-solid fa-house-medical"></i>
         </div>
-        <div class="sidebar-icons">
-            <div class="sidebar-section-title">Navegacao</div>
-            <a href="/dashboard" class="sidebar-icon" title="Dashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
-            <a href="/pessoas" class="sidebar-icon" title="Pessoas"><i class="fa-solid fa-users"></i><span>Pessoas</span></a>
-            <a href="/checkins" class="sidebar-icon" title="Check-ins"><i class="fa-solid fa-circle-check"></i><span>Check-ins</span></a>
-            <a href="/home-services" class="sidebar-icon" title="Utilizacoes"><i class="fa-solid fa-hospital"></i><span>Utilizacoes</span></a>
-            <a href="/reports" class="sidebar-icon active" title="Relatorios"><i class="fa-solid fa-file-lines"></i><span>Relatorios</span></a>
-            <a href="/audit-logs" class="sidebar-icon" title="Historico"><i class="fa-solid fa-clock-rotate-left"></i><span>Historico</span></a>
-            <a href="/admin/" class="sidebar-icon" title="Configuracoes"><i class="fa-solid fa-gear"></i><span>Configuracoes</span></a>
+        <div class="sidebar-brand-text">
+          <div class="sidebar-brand-title">Casa de Apoio</div>
+          <div class="sidebar-brand-subtitle">Painel administrativo</div>
         </div>
+      </div>
+      <div class="sidebar-icons">
+        <div class="sidebar-section-title">Navegacao</div>
+        <a href="/dashboard" class="sidebar-icon" title="Dashboard"
+          ><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a
+        >
+        <a href="/pessoas" class="sidebar-icon" title="Pessoas"
+          ><i class="fa-solid fa-users"></i><span>Pessoas</span></a
+        >
+        <a href="/checkins" class="sidebar-icon" title="Check-ins"
+          ><i class="fa-solid fa-circle-check"></i><span>Check-ins</span></a
+        >
+        <a href="/home-services" class="sidebar-icon" title="Utilizacoes"
+          ><i class="fa-solid fa-hospital"></i><span>Utilizacoes</span></a
+        >
+        <a href="/reports" class="sidebar-icon active" title="Relatorios"
+          ><i class="fa-solid fa-file-lines"></i><span>Relatorios</span></a
+        >
+        <a href="/audit-logs" class="sidebar-icon" title="Historico"
+          ><i class="fa-solid fa-clock-rotate-left"></i
+          ><span>Historico</span></a
+        >
+        <a href="/admin/" class="sidebar-icon" title="Configuracoes"
+          ><i class="fa-solid fa-gear"></i><span>Configuracoes</span></a
+        >
+      </div>
     </div>
 
     <div class="main-content">
-        <div class="main-topbar">
-            <div class="topbar-meta">
-                <button class="menu-toggle" type="button" aria-label="Abrir menu" data-sidebar-toggle>
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-                <div class="topbar-meta-text">
-                    <div class="topbar-label">Painel</div>
-                    <div class="topbar-title">{{ report_data.title }}</div>
-                </div>
-            </div>
+      <div class="main-topbar">
+        <div class="topbar-meta">
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-label="Abrir menu"
+            data-sidebar-toggle
+          >
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar-meta-text">
+            <div class="topbar-label">Painel</div>
+            <div class="topbar-title">{{ report_data.title }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="navbar-top">
+        <div>
+          <div class="navbar-title">Relatórios</div>
+          <div class="navbar-subtitle">
+            Análises e exportações | Casa de Apoio
+          </div>
+        </div>
+        <div class="topbar-label">Listagem</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Filtros do Relatorio</div>
+        <div class="panel-subtitle">
+          Selecione o intervalo para acompanhar a evolucao da lotacao e exportar
+          os dados.
+        </div>
+        <div class="period-badge">
+          <i class="fa-regular fa-calendar"></i>
+          Periodo ativo:
+          <strong
+            >{{ report_data.period.start_date }} ate {{
+            report_data.period.end_date }}</strong
+          >
+        </div>
+        <form method="get" action="/reports" class="filter-grid">
+          <div>
+            <label class="field-label" for="start_date">Data inicial</label>
+            <input
+              class="field-input"
+              type="date"
+              id="start_date"
+              name="start_date"
+              value="{{ start_date }}"
+            />
+          </div>
+          <div>
+            <label class="field-label" for="end_date">Data final</label>
+            <input
+              class="field-input"
+              type="date"
+              id="end_date"
+              name="end_date"
+              value="{{ end_date }}"
+            />
+          </div>
+          <div>
+            <label class="field-label" for="report_type"
+              >Tipo de relatorio</label
+            >
+            <select class="field-input" id="report_type" name="report_type">
+              {% for value, label in report_type_options %}
+              <option
+                value="{{ value }}"
+                {%
+                if
+                report_type=""
+                ="value"
+                %}selected{%
+                endif
+                %}
+              >
+                {{ label }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="per_page">Itens por pagina</label>
+            <select class="field-input" id="per_page" name="per_page">
+              {% for option in per_page_options %}
+              <option
+                value="{{ option }}"
+                {%
+                if
+                per_page=""
+                ="option"
+                %}selected{%
+                endif
+                %}
+              >
+                {{ option }} por pagina
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="filters-actions">
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-solid fa-magnifying-glass"></i>Gerar
+            </button>
+            <a
+              class="btn btn-secondary"
+              href="/reports?start_date={{ start_date }}&end_date={{ end_date }}&report_type={{ report_type }}&export=xlsx"
+              ><i class="fa-solid fa-file-excel"></i>XLSX</a
+            >
+            <a
+              class="btn btn-secondary"
+              href="/reports?start_date={{ start_date }}&end_date={{ end_date }}&report_type={{ report_type }}&export=pdf"
+              ><i class="fa-solid fa-file-pdf"></i>PDF</a
+            >
+          </div>
+        </form>
+      </div>
+
+      <div class="report-sheet">
+        <div class="report-header">
+          <div class="report-title">
+            {{ report_data.title }} - Casa de Apoio
+          </div>
+          <div class="report-meta">
+            Periodo: {{ report_data.period.start_date }} ate {{
+            report_data.period.end_date }}
+          </div>
         </div>
 
-        <div class="navbar-top">
-            <div>
-                <div class="navbar-title">Relatórios</div>
-                <div class="navbar-subtitle">Análises e exportações | Casa de Apoio</div>
+        <div class="report-section">
+          <div class="report-section-title">Resumo</div>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="summary-label">Dias no periodo</div>
+              <div class="summary-value">{{ report_data.period.days }}</div>
             </div>
-            <div class="topbar-label">Listagem</div>
+            {% for item in report_data.summary %}
+            <div class="summary-item">
+              <div class="summary-label">{{ item.label }}</div>
+              <div class="summary-value">
+                {{ item.value }}{% if item.unit %} {{ item.unit }}{% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
         </div>
+      </div>
 
-        <div class="panel">
-            <div class="panel-title">Filtros do Relatorio</div>
-            <div class="panel-subtitle">Selecione o intervalo para acompanhar a evolucao da lotacao e exportar os dados.</div>
-            <div class="period-badge">
-                <i class="fa-regular fa-calendar"></i>
-                Periodo ativo: <strong>{{ report_data.period.start_date }} ate {{ report_data.period.end_date }}</strong>
-            </div>
-            <form method="get" action="/reports" class="filter-grid">
-                <div>
-                    <label class="field-label" for="start_date">Data inicial</label>
-                    <input class="field-input" type="date" id="start_date" name="start_date" value="{{ start_date }}">
-                </div>
-                <div>
-                    <label class="field-label" for="end_date">Data final</label>
-                    <input class="field-input" type="date" id="end_date" name="end_date" value="{{ end_date }}">
-                </div>
-                <div>
-                    <label class="field-label" for="report_type">Tipo de relatorio</label>
-                    <select class="field-input" id="report_type" name="report_type">
-                        {% for value, label in report_type_options %}
-                        <option value="{{ value }}" {% if report_type == value %}selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label class="field-label" for="per_page">Itens por pagina</label>
-                    <select class="field-input" id="per_page" name="per_page">
-                        {% for option in per_page_options %}
-                        <option value="{{ option }}" {% if per_page == option %}selected{% endif %}>{{ option }} por pagina</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="filters-actions">
-                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i>Gerar</button>
-                    <a class="btn btn-secondary" href="/reports?start_date={{ start_date }}&end_date={{ end_date }}&report_type={{ report_type }}&export=xlsx"><i class="fa-solid fa-file-excel"></i>XLSX</a>
-                    <a class="btn btn-secondary" href="/reports?start_date={{ start_date }}&end_date={{ end_date }}&report_type={{ report_type }}&export=pdf"><i class="fa-solid fa-file-pdf"></i>PDF</a>
-                </div>
-            </form>
+      <div class="panel">
+        <div class="panel-title">Ocupacao diaria</div>
+        <div class="panel-subtitle">
+          Visualizacao de pessoas ativas por dia ao longo do periodo.
         </div>
+        <div class="chart-wrap"><canvas id="dailyOccupancyChart"></canvas></div>
+      </div>
 
-        <div class="report-sheet">
-            <div class="report-header">
-                <div class="report-title">{{ report_data.title }} - Casa de Apoio</div>
-                <div class="report-meta">Periodo: {{ report_data.period.start_date }} ate {{ report_data.period.end_date }}</div>
-            </div>
-
-            <div class="report-section">
-                <div class="report-section-title">Resumo</div>
-                <div class="summary-grid">
-                    <div class="summary-item"><div class="summary-label">Dias no periodo</div><div class="summary-value">{{ report_data.period.days }}</div></div>
-                    {% for item in report_data.summary %}
-                    <div class="summary-item">
-                        <div class="summary-label">{{ item.label }}</div>
-                        <div class="summary-value">{{ item.value }}{% if item.unit %} {{ item.unit }}{% endif %}</div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+      <div class="panel">
+        <div class="panel-title">Detalhamento diario</div>
+        <div class="panel-subtitle">
+          Tabela detalhada com ocupacao e percentual diario.
         </div>
-
-        <div class="panel">
-            <div class="panel-title">Ocupacao diaria</div>
-            <div class="panel-subtitle">Visualizacao de pessoas ativas por dia ao longo do periodo.</div>
-            <div class="chart-wrap"><canvas id="dailyOccupancyChart"></canvas></div>
-        </div>
-
-        <div class="panel">
-            <div class="panel-title">Detalhamento diario</div>
-            <div class="panel-subtitle">Tabela detalhada com ocupacao e percentual diario.</div>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            {% for header in report_data.table.headers %}
-                            <th>{{ header }}</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in report_data.daily %}
-                        <tr>
-                            {% for key in report_data.table.keys %}
-                            <td>
-                                {% if key == 'date' %}{{ item.date }}{% endif %}
-                                {% if key == 'primary' %}{{ item.primary }}{% endif %}
-                                {% if key == 'secondary' %}{{ item.secondary }}{% endif %}
-                                {% if key == 'male' %}{{ item.male }}{% endif %}
-                                {% if key == 'female' %}{{ item.female }}{% endif %}
-                                {% if key == 'other' %}{{ item.other }}{% endif %}
-                                {% if key == 'total' %}{{ item.total }}{% endif %}
-                            </td>
-                            {% endfor %}
-                        </tr>
-                        {% empty %}
-                        <tr><td colspan="{{ report_data.table.headers|length }}" class="empty-state">Sem movimentacao no periodo.</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            {% if page_obj and page_obj.paginator.num_pages > 1 %}
-            <div class="pagination">
-                <a class="page-link {% if not page_obj.has_previous %}disabled{% endif %}" href="{% if page_obj.has_previous %}/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1{% else %}#{% endif %}">«</a>
-                <a class="page-link {% if not page_obj.has_previous %}disabled{% endif %}" href="{% if page_obj.has_previous %}/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}{% else %}#{% endif %}">‹</a>
-                {% for num in page_obj.paginator.page_range %}
-                    {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-                        <a class="page-link {% if page_obj.number == num %}active{% endif %}" href="/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ num }}">{{ num }}</a>
-                    {% endif %}
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                {% for header in report_data.table.headers %}
+                <th>{{ header }}</th>
                 {% endfor %}
-                <a class="page-link {% if not page_obj.has_next %}disabled{% endif %}" href="{% if page_obj.has_next %}/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}{% else %}#{% endif %}">›</a>
-                <a class="page-link {% if not page_obj.has_next %}disabled{% endif %}" href="{% if page_obj.has_next %}/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}{% else %}#{% endif %}">»</a>
-            </div>
-            {% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in report_data.daily %}
+              <tr>
+                {% for key in report_data.table.keys %}
+                <td>
+                  {% if key == 'date' %}{{ item.date }}{% endif %} {% if key ==
+                  'primary' %}{{ item.primary }}{% endif %} {% if key ==
+                  'secondary' %}{{ item.secondary }}{% endif %} {% if key ==
+                  'male' %}{{ item.male }}{% endif %} {% if key == 'female' %}{{
+                  item.female }}{% endif %} {% if key == 'other' %}{{ item.other
+                  }}{% endif %} {% if key == 'total' %}{{ item.total }}{% endif
+                  %}
+                </td>
+                {% endfor %}
+              </tr>
+              {% empty %}
+              <tr>
+                <td
+                  colspan="{{ report_data.table.headers|length }}"
+                  class="empty-state"
+                >
+                  Sem movimentacao no periodo.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+
+        {% if page_obj and page_obj.paginator.num_pages > 1 %}
+        <div class="pagination">
+          <a
+            class="page-link {% if not page_obj.has_previous %}disabled{% endif %}"
+            href="{% if page_obj.has_previous %}/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page=1{% else %}#{% endif %}"
+            >«</a
+          >
+          <a
+            class="page-link {% if not page_obj.has_previous %}disabled{% endif %}"
+            href="{% if page_obj.has_previous %}/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}{% else %}#{% endif %}"
+            >‹</a
+          >
+          {% for num in page_obj.paginator.page_range %} {% if num >=
+          page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+          <a
+            class="page-link {% if page_obj.number == num %}active{% endif %}"
+            href="/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ num }}"
+            >{{ num }}</a
+          >
+          {% endif %} {% endfor %}
+          <a
+            class="page-link {% if not page_obj.has_next %}disabled{% endif %}"
+            href="{% if page_obj.has_next %}/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}{% else %}#{% endif %}"
+            >›</a
+          >
+          <a
+            class="page-link {% if not page_obj.has_next %}disabled{% endif %}"
+            href="{% if page_obj.has_next %}/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}{% else %}#{% endif %}"
+            >»</a
+          >
+        </div>
+        {% endif %}
+      </div>
     </div>
 
     <script>
-        const labels = {{ daily_labels|safe }};
-        const datasets = {{ chart_datasets|safe }};
-        const maxHint = {{ chart_max_hint|default:0 }};
-        const dataValues = datasets.flatMap((item) => item.data || []);
-        const suggestedMax = Math.max(maxHint, ...(dataValues.length ? dataValues : [0]));
+      const labels = {{ daily_labels|safe }};
+      const datasets = {{ chart_datasets|safe }};
+      const maxHint = {{ chart_max_hint|default:0 }};
+      const dataValues = datasets.flatMap((item) => item.data || []);
+      const suggestedMax = Math.max(maxHint, ...(dataValues.length ? dataValues : [0]));
 
-        if (document.getElementById('dailyOccupancyChart')) {
-            new Chart(document.getElementById('dailyOccupancyChart'), {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: datasets.map((item) => ({
-                        label: item.label,
-                        data: item.data,
-                        borderColor: item.border_color,
-                        backgroundColor: item.background_color,
-                        borderWidth: 3,
-                        fill: item.fill,
-                        tension: 0.25,
-                    }))
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: suggestedMax > 0 ? suggestedMax + 5 : 10,
-                            ticks: { precision: 0 },
-                            title: { display: true, text: '{{ chart_y_axis_label }}' }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                maxRotation: 45,
-                                minRotation: 30,
-                                autoSkip: true,
-                                maxTicksLimit: 12
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: datasets.length > 1 },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return ` Ocupacao: ${context.parsed.y}`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
+      if (document.getElementById('dailyOccupancyChart')) {
+          new Chart(document.getElementById('dailyOccupancyChart'), {
+              type: 'line',
+              data: {
+                  labels: labels,
+                  datasets: datasets.map((item) => ({
+                      label: item.label,
+                      data: item.data,
+                      borderColor: item.border_color,
+                      backgroundColor: item.background_color,
+                      borderWidth: 3,
+                      fill: item.fill,
+                      tension: 0.25,
+                  }))
+              },
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  interaction: {
+                      mode: 'index',
+                      intersect: false,
+                  },
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                          max: suggestedMax > 0 ? suggestedMax + 5 : 10,
+                          ticks: { precision: 0 },
+                          title: { display: true, text: '{{ chart_y_axis_label }}' }
+                      },
+                      x: {
+                          grid: { display: false },
+                          ticks: {
+                              maxRotation: 45,
+                              minRotation: 30,
+                              autoSkip: true,
+                              maxTicksLimit: 12
+                          }
+                      }
+                  },
+                  plugins: {
+                      legend: { display: datasets.length > 1 },
+                      tooltip: {
+                          callbacks: {
+                              label: function(context) {
+                                  return ` Ocupacao: ${context.parsed.y}`;
+                              }
+                          }
+                      }
+                  }
+              }
+          });
+      }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const body = document.body;
-            const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
-            const sidebarClose = document.querySelector('[data-sidebar-close]');
+      document.addEventListener('DOMContentLoaded', function() {
+          const body = document.body;
+          const sidebarToggle = document.querySelector('[data-sidebar-toggle]');
+          const sidebarClose = document.querySelector('[data-sidebar-close]');
 
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    body.classList.toggle('sidebar-open');
-                });
-            }
+          if (sidebarToggle) {
+              sidebarToggle.addEventListener('click', function() {
+                  body.classList.toggle('sidebar-open');
+              });
+          }
 
-            if (sidebarClose) {
-                sidebarClose.addEventListener('click', function() {
-                    body.classList.remove('sidebar-open');
-                });
-            }
-        });
+          if (sidebarClose) {
+              sidebarClose.addEventListener('click', function() {
+                  body.classList.remove('sidebar-open');
+              });
+          }
+      });
     </script>
-</body>
+  </body>
 </html>

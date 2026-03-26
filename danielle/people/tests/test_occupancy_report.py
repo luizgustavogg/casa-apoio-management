@@ -87,4 +87,6 @@ class OccupancyReportServiceTests(TestCase):
         self.assertEqual(report["report_type"], "gender_mix")
         self.assertIn("summary", report)
         self.assertIn("daily", report)
-        self.assertEqual(report["table"]["keys"], ["date", "male", "female", "other", "total"])
+        self.assertEqual(
+            report["table"]["keys"], ["date", "male", "female", "other", "total"]
+        )

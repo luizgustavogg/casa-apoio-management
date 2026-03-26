@@ -108,9 +108,13 @@ def _build_pdf_log_entries(logs):
 
     for log in logs:
         relevant_fields = [
-            field_name for field_name in (log.changed_fields or []) if field_name not in IGNORED_EXPORT_FIELDS
+            field_name
+            for field_name in (log.changed_fields or [])
+            if field_name not in IGNORED_EXPORT_FIELDS
         ]
-        summary_fields = relevant_fields if log.action == AuditLog.ACTION_UPDATE else None
+        summary_fields = (
+            relevant_fields if log.action == AuditLog.ACTION_UPDATE else None
+        )
 
         entries.append(
             {
@@ -158,7 +162,9 @@ def _build_pdf_response(logs, params):
 
 
 def _build_xlsx_response(logs, params):
-    xlsx_content = build_audit_log_xlsx(logs, filter_summary=_build_filter_summary(params))
+    xlsx_content = build_audit_log_xlsx(
+        logs, filter_summary=_build_filter_summary(params)
+    )
     response = HttpResponse(
         xlsx_content,
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -210,9 +216,15 @@ class AuditLogHistoryView(TemplateView):
                 "start_date": self.request.GET.get("start_date", ""),
                 "end_date": self.request.GET.get("end_date", ""),
                 "total_logs": filtered_logs.count(),
-                "created_count": filtered_logs.filter(action=AuditLog.ACTION_CREATE).count(),
-                "updated_count": filtered_logs.filter(action=AuditLog.ACTION_UPDATE).count(),
-                "deleted_count": filtered_logs.filter(action=AuditLog.ACTION_DELETE).count(),
+                "created_count": filtered_logs.filter(
+                    action=AuditLog.ACTION_CREATE
+                ).count(),
+                "updated_count": filtered_logs.filter(
+                    action=AuditLog.ACTION_UPDATE
+                ).count(),
+                "deleted_count": filtered_logs.filter(
+                    action=AuditLog.ACTION_DELETE
+                ).count(),
             }
         )
         return context
