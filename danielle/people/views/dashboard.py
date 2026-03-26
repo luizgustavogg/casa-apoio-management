@@ -208,7 +208,7 @@ class DashboardView(TemplateView):
                 "is_at_full_capacity": is_at_full_capacity,
                 "capacity_rate": capacity_rate_int,
                 "capacity_rate_progress": capacity_rate_progress,
-                "gender_distribution": list(gender_distribution),
+                "gender_distribution": json.dumps(list(gender_distribution)),
                 "checkin_reasons": list(checkin_reasons),
                 "treatment_data": treatment_with_percentage,
                 "home_services_count": home_services_count,

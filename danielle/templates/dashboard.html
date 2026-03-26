@@ -1065,17 +1065,23 @@
           });
       }
 
-      if (document.getElementById('genderChart')) {
-          const genderData = {{ gender_distribution|safe }};
-          new Chart(document.getElementById('genderChart'), {
-              type: 'doughnut',
-              data: {
+        if (document.getElementById('genderChart')) {
+          try {
+            const genderData = {{ gender_distribution|safe }};
+            if (Array.isArray(genderData) && genderData.length > 0) {
+              new Chart(document.getElementById('genderChart'), {
+                type: 'doughnut',
+                data: {
                   labels: genderData.map(g => g.gender === 'M' ? 'Masculino' : g.gender === 'F' ? 'Feminino' : 'Outro'),
                   datasets: [{data: genderData.map(g => g.count), backgroundColor: [colors.primary, colors.danger, colors.warning], borderColor: '#fff', borderWidth: 2}]
-              },
-              options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom'}}}
-          });
-      }
+                },
+                options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom'}}}
+              });
+            }
+          } catch (e) {
+            // Keep dashboard scripts running even if gender data is malformed.
+          }
+        }
 
       if (document.getElementById('checkinTypesChart')) {
           const checkinLabels = {{ checkin_labels|safe }};
