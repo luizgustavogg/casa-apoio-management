@@ -1,8 +1,8 @@
-### Create virtual enviroment
+### Create virtual environment
 
 - > python -m venv myvenv
 
-### Activate virtual enviroment
+### Activate virtual environment
 
 - > . myvenv/Scripts/activate
 
@@ -14,7 +14,7 @@
 
 - > cd danielle
 
-### Makemigrations and migrate
+### Run migrations
 
 - > python manage.py makemigrations
 - > python manage.py migrate
@@ -25,12 +25,12 @@
 
 ### Run seeds
 
-- Popular o banco e necessario para o dashboard exibir dados realistas.
-- Recomendado para demo do dashboard (dados variados):
+- Populate the database to show realistic dashboard metrics.
+- Recommended for dashboard demos (varied data):
 
 - > python manage.py seed_dashboard_data --reset --people 90 --days 60
 
-- Se preferir a carga fixa em JSON, use:
+- If you prefer fixed JSON fixtures, use:
 
 - > python manage.py loaddata people/seed/people.json
 - > python manage.py loaddata people/seed/checkins.json
@@ -42,6 +42,7 @@
 - > python -m pytest
 - > python -m coverage run -m pytest
 - > python -m coverage html
+- > python -m pytest --cov=people --cov=utils --cov-report=term-missing
 
 ### Run the application
 
@@ -54,7 +55,7 @@
 - > python manage.py migrate
 - > python manage.py runserver
 
-### Rotas
+### Routes
 
 - Users
   - `POST /users/` -> Create new user (username,password,email)
@@ -62,10 +63,10 @@
 - People
   - `GET /api/v1/people/` -> List 12 card people.
   - `POST /api/v1/people/` -> Create new person.
-  - `GET /api/v1/people/<int:id>/` -> List person by id.
+  - `GET /api/v1/people/<int:id>/` -> Get person by ID.
   - `PUT /api/v1/people/<int:id>/` -> Replace all mandatory fields. plus fields in request.
-  - `Patch /api/v1/people/<int:id>/` -> Replace only fields in request.
-  - `Delete /api/v1/people/<int:id>/` -> Delete person by ID
+  - `PATCH /api/v1/people/<int:id>/` -> Replace only fields sent in request.
+  - `DELETE /api/v1/people/<int:id>/` -> Delete person by ID.
 
 ### API docs (drf-spectacular)
 
@@ -73,17 +74,17 @@
 - Swagger UI: `GET /api/docs/swagger/`
 - ReDoc: `GET /api/docs/redoc/`
 
-### Dashboard (MVT - sem autenticação)
+### Dashboard (MVT - no authentication)
 
-- Acesso público: `GET /dashboard`
-- Indicadores em tempo real:
-  - Total de pessoas cadastradas
-  - Check-ins ativos/totais
-  - Distribuição por gênero
-  - Tipos de check-in
-  - Tipos de tratamento (quimioterapia, radioterapia, cirurgia, exames, consultas)
-  - Serviços da casa
-  - Vagas sociais
+- Public access: `GET /dashboard`
+- Real-time indicators:
+  - Total registered people
+  - Active/total check-ins
+  - Gender distribution
+  - Check-in types
+  - Treatment types (chemotherapy, radiotherapy, surgery, exams, appointments)
+  - Home services usage
+  - Social vacancies
 
 ## Steps done
 
@@ -133,7 +134,7 @@
 
 - Exclude fields if necessary
 - Include fields if necessary
-- Forma
+- Format fields when needed
 
 ### Views
 
