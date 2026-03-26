@@ -192,6 +192,11 @@ class DashboardView(TemplateView):
             checkin_labels.append(reason_map.get(item["reason"], item["reason"]))
             checkin_data.append(item["count"])
 
+        checkin_type_items = [
+            {"label": label, "count": count}
+            for label, count in zip(checkin_labels, checkin_data)
+        ]
+
         context.update(
             {
                 "total_people": total_people,
@@ -217,6 +222,7 @@ class DashboardView(TemplateView):
                 "checkin_labels": json.dumps(checkin_labels),
                 "checkin_data": json.dumps(checkin_data),
                 "colors_checkin": json.dumps(colors_checkin),
+                "checkin_type_items": checkin_type_items,
                 "treatment_counts": json.dumps(
                     [item["count"] for item in treatment_with_percentage]
                 ),

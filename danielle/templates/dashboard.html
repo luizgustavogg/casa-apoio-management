@@ -422,6 +422,31 @@
         height: 220px;
       }
 
+      .chart-fallback {
+        display: none;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .chart-fallback.visible {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .chart-fallback li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f7f9fc;
+        border: 1px solid #e6ebf2;
+        border-radius: 8px;
+        padding: 8px 10px;
+        color: #34495e;
+        font-size: 0.9rem;
+      }
+
       .insight-list {
         list-style: none;
         display: flex;
@@ -925,6 +950,19 @@
           <div class="chart-title">Tipos de Check-in</div>
           <div class="small-chart">
             <canvas id="checkinTypesChart"></canvas>
+            <ul id="checkinTypesFallback" class="chart-fallback">
+              {% for item in checkin_type_items %}
+              <li>
+                <span>{{ item.label }}</span>
+                <strong>{{ item.count }}</strong>
+              </li>
+              {% empty %}
+              <li>
+                <span>Sem dados de tipos de check-in no período.</span>
+                <strong>0</strong>
+              </li>
+              {% endfor %}
+            </ul>
           </div>
         </div>
       </div>
@@ -937,8 +975,7 @@
             {% for treatment in treatment_data %}
             <div class="treatment-item">
               <span class="treatment-label"
-                ><i class="fa-solid {{ treatment.icon }}"></i> {{
-                treatment.label }}</span
+                ><i class="fa-solid {{ treatment.icon }}"></i> {{ treatment.label }}</span
               >
               <div class="treatment-bar-bg">
                 <div
@@ -962,18 +999,15 @@
             <span class="stat-value">
               {{ new_checkins_7_days }} {% if checkin_trend_direction == 'up' %}
               <span class="badge badge-up"
-                ><i class="fa-solid fa-arrow-up"></i> {{ checkin_variation_rate
-                }}%</span
+                ><i class="fa-solid fa-arrow-up"></i> {{ checkin_variation_rate }}%</span
               >
               {% elif checkin_trend_direction == 'down' %}
               <span class="badge badge-down"
-                ><i class="fa-solid fa-arrow-down"></i> {{
-                checkin_variation_rate }}%</span
+                ><i class="fa-solid fa-arrow-down"></i> {{ checkin_variation_rate }}%</span
               >
               {% else %}
               <span class="badge badge-flat"
-                ><i class="fa-solid fa-minus"></i> {{ checkin_variation_rate
-                }}%</span
+                ><i class="fa-solid fa-minus"></i> {{ checkin_variation_rate }}%</span
               >
               {% endif %}
             </span>
@@ -1047,39 +1081,47 @@
           const checkinLabels = {{ checkin_labels|safe }};
           const checkinData = {{ checkin_data|safe }};
           const checkinColors = {{ colors_checkin|safe }};
+          const fallback = document.getElementById('checkinTypesFallback');
 
-          if (checkinLabels.length > 0) {
+          try {
+            if (typeof Chart !== 'undefined' && checkinLabels.length > 0) {
+              if (fallback) fallback.classList.remove('visible');
               new Chart(document.getElementById('checkinTypesChart'), {
-                  type: 'bar',
-                  data: {
-                      labels: checkinLabels,
-                      datasets: [{
-                          label: 'Quantidade',
-                          data: checkinData,
-                          backgroundColor: checkinColors,
-                          borderRadius: 8,
-                          minBarLength: 8,
-                          barThickness: 26,
-                      }]
+                type: 'bar',
+                data: {
+                  labels: checkinLabels,
+                  datasets: [{
+                    label: 'Quantidade',
+                    data: checkinData,
+                    backgroundColor: checkinColors,
+                    borderRadius: 8,
+                    minBarLength: 8,
+                    barThickness: 26,
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  indexAxis: 'y',
+                  plugins: {
+                    legend: {display: false},
                   },
-                  options: {
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      indexAxis: 'y',
-                      plugins: {
-                          legend: {display: false},
-                      },
-                      scales: {
-                          x: {
-                              beginAtZero: true,
-                              ticks: {precision: 0},
-                          },
-                          y: {
-                              grid: {display: false},
-                          }
-                      }
+                  scales: {
+                    x: {
+                      beginAtZero: true,
+                      ticks: {precision: 0},
+                    },
+                    y: {
+                      grid: {display: false},
+                    }
                   }
+                }
               });
+            } else if (fallback) {
+              fallback.classList.add('visible');
+            }
+          } catch (e) {
+            if (fallback) fallback.classList.add('visible');
           }
       }
 

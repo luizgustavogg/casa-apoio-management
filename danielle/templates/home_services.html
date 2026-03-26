@@ -642,33 +642,43 @@
             {% for servico in servicos %}
             <tr>
               <td><strong>{{ servico.person_name }}</strong></td>
-              <td>
-                {% if servico.breakfast %}<span
-                  class="service-badge service-active"
-                  ><i class="fa-solid fa-mug-saucer"></i> Café</span
-                >{% endif %} {% if servico.lunch %}<span
-                  class="service-badge service-active"
-                  ><i class="fa-solid fa-utensils"></i> Almoço</span
-                >{% endif %} {% if servico.snack %}<span
-                  class="service-badge service-active"
-                  ><i class="fa-solid fa-cookie-bite"></i> Lanche</span
-                >{% endif %} {% if servico.dinner %}<span
-                  class="service-badge service-active"
-                  ><i class="fa-solid fa-moon"></i> Jantar</span
-                >{% endif %} {% if servico.shower %}<span
-                  class="service-badge service-active"
-                  ><i class="fa-solid fa-shower"></i> Banho</span
-                >{% endif %} {% if servico.sleep %}<span
-                  class="service-badge service-active"
-                  ><i class="fa-solid fa-bed"></i> Pernoite</span
-                >{% endif %} {% if not servico.breakfast and not servico.lunch
-                and not servico.snack and not servico.dinner and not
-                servico.shower and not servico.sleep %}
-                <span class="service-badge service-inactive"
-                  >— Nenhum serviço</span
-                >
-                {% endif %}
-              </td>
+                  <td>
+                    {% if servico.breakfast %}
+                    <span class="service-badge service-active"
+                      ><i class="fa-solid fa-mug-saucer"></i> Café</span
+                    >
+                    {% endif %}
+                    {% if servico.lunch %}
+                    <span class="service-badge service-active"
+                      ><i class="fa-solid fa-utensils"></i> Almoço</span
+                    >
+                    {% endif %}
+                    {% if servico.snack %}
+                    <span class="service-badge service-active"
+                      ><i class="fa-solid fa-cookie-bite"></i> Lanche</span
+                    >
+                    {% endif %}
+                    {% if servico.dinner %}
+                    <span class="service-badge service-active"
+                      ><i class="fa-solid fa-moon"></i> Jantar</span
+                    >
+                    {% endif %}
+                    {% if servico.shower %}
+                    <span class="service-badge service-active"
+                      ><i class="fa-solid fa-shower"></i> Banho</span
+                    >
+                    {% endif %}
+                    {% if servico.sleep %}
+                    <span class="service-badge service-active"
+                      ><i class="fa-solid fa-bed"></i> Pernoite</span
+                    >
+                    {% endif %}
+                    {% if not servico.breakfast and not servico.lunch and not servico.snack and not servico.dinner and not servico.shower and not servico.sleep %}
+                    <span class="service-badge service-inactive"
+                      >— Nenhum serviço</span
+                    >
+                    {% endif %}
+                  </td>
               <td>{{ servico.created_at|date:"d/m/Y H:i" }}</td>
             </tr>
             {% empty %}
@@ -693,14 +703,15 @@
             href="{% if page_obj.has_previous %}/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}{% else %}#{% endif %}"
             >‹</a
           >
-          {% for num in page_obj.paginator.page_range %} {% if num >=
-          page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+          {% for num in page_obj.paginator.page_range %}
+          {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
           <a
             class="page-link {% if page_obj.number == num %}active{% endif %}"
             href="/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ num }}"
             >{{ num }}</a
           >
-          {% endif %} {% endfor %}
+          {% endif %}
+          {% endfor %}
           <a
             class="page-link {% if not page_obj.has_next %}disabled{% endif %}"
             href="{% if page_obj.has_next %}/home-services?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}{% else %}#{% endif %}"

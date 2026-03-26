@@ -574,10 +574,7 @@
         <div class="period-badge">
           <i class="fa-regular fa-calendar"></i>
           Periodo ativo:
-          <strong
-            >{{ report_data.period.start_date }} ate {{
-            report_data.period.end_date }}</strong
-          >
+          <strong>{{ report_data.period.start_date }} ate {{ report_data.period.end_date }}</strong>
         </div>
         <form method="get" action="/reports" class="filter-grid">
           <div>
@@ -608,13 +605,7 @@
               {% for value, label in report_type_options %}
               <option
                 value="{{ value }}"
-                {%
-                if
-                report_type=""
-                ="value"
-                %}selected{%
-                endif
-                %}
+                {% if report_type == value %}selected{% endif %}
               >
                 {{ label }}
               </option>
@@ -627,13 +618,7 @@
               {% for option in per_page_options %}
               <option
                 value="{{ option }}"
-                {%
-                if
-                per_page=""
-                ="option"
-                %}selected{%
-                endif
-                %}
+                {% if per_page == option %}selected{% endif %}
               >
                 {{ option }} por pagina
               </option>
@@ -664,8 +649,7 @@
             {{ report_data.title }} - Casa de Apoio
           </div>
           <div class="report-meta">
-            Periodo: {{ report_data.period.start_date }} ate {{
-            report_data.period.end_date }}
+            Periodo: {{ report_data.period.start_date }} ate {{ report_data.period.end_date }}
           </div>
         </div>
 
@@ -689,9 +673,9 @@
       </div>
 
       <div class="panel">
-        <div class="panel-title">Ocupacao diaria</div>
+        <div class="panel-title">Serie diaria</div>
         <div class="panel-subtitle">
-          Visualizacao de pessoas ativas por dia ao longo do periodo.
+          Visualizacao dos valores por dia ao longo do periodo.
         </div>
         <div class="chart-wrap"><canvas id="dailyOccupancyChart"></canvas></div>
       </div>
@@ -715,13 +699,21 @@
               <tr>
                 {% for key in report_data.table.keys %}
                 <td>
-                  {% if key == 'date' %}{{ item.date }}{% endif %} {% if key ==
-                  'primary' %}{{ item.primary }}{% endif %} {% if key ==
-                  'secondary' %}{{ item.secondary }}{% endif %} {% if key ==
-                  'male' %}{{ item.male }}{% endif %} {% if key == 'female' %}{{
-                  item.female }}{% endif %} {% if key == 'other' %}{{ item.other
-                  }}{% endif %} {% if key == 'total' %}{{ item.total }}{% endif
-                  %}
+                  {% if key == 'date' %}
+                    {{ item.date }}
+                  {% elif key == 'primary' %}
+                    {{ item.primary }}
+                  {% elif key == 'secondary' %}
+                    {{ item.secondary }}
+                  {% elif key == 'male' %}
+                    {{ item.male }}
+                  {% elif key == 'female' %}
+                    {{ item.female }}
+                  {% elif key == 'other' %}
+                    {{ item.other }}
+                  {% elif key == 'total' %}
+                    {{ item.total }}
+                  {% endif %}
                 </td>
                 {% endfor %}
               </tr>
@@ -751,14 +743,15 @@
             href="{% if page_obj.has_previous %}/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}{% else %}#{% endif %}"
             >‹</a
           >
-          {% for num in page_obj.paginator.page_range %} {% if num >=
-          page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+          {% for num in page_obj.paginator.page_range %}
+          {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
           <a
             class="page-link {% if page_obj.number == num %}active{% endif %}"
             href="/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ num }}"
             >{{ num }}</a
           >
-          {% endif %} {% endfor %}
+          {% endif %}
+          {% endfor %}
           <a
             class="page-link {% if not page_obj.has_next %}disabled{% endif %}"
             href="{% if page_obj.has_next %}/reports?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}{% else %}#{% endif %}"
@@ -825,7 +818,7 @@
                       tooltip: {
                           callbacks: {
                               label: function(context) {
-                                  return ` Ocupacao: ${context.parsed.y}`;
+                              return `${context.dataset.label}: ${context.parsed.y}`;
                               }
                           }
                       }

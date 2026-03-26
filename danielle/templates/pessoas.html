@@ -672,14 +672,15 @@
             href="{% if page_obj.has_previous %}/pessoas?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}{% else %}#{% endif %}"
             >‹</a
           >
-          {% for num in page_obj.paginator.page_range %} {% if num >=
-          page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+          {% for num in page_obj.paginator.page_range %}
+          {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
           <a
             class="page-link {% if page_obj.number == num %}active{% endif %}"
             href="/pessoas?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ num }}"
             >{{ num }}</a
           >
-          {% endif %} {% endfor %}
+          {% endif %}
+          {% endfor %}
           <a
             class="page-link {% if not page_obj.has_next %}disabled{% endif %}"
             href="{% if page_obj.has_next %}/pessoas?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}{% else %}#{% endif %}"

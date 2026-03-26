@@ -71,8 +71,7 @@
   <body>
     <div class="title">{{ report_data.title }} - Casa de Apoio</div>
     <div class="muted">
-      Periodo: {{ report_data.period.start_date }} ate {{
-      report_data.period.end_date }}
+      Periodo: {{ report_data.period.start_date }} ate {{ report_data.period.end_date }}
     </div>
 
     <div class="section">
@@ -108,12 +107,21 @@
           <tr>
             {% for key in report_data.table.keys %}
             <td class="right">
-              {% if key == 'date' %}{{ item.date }}{% endif %} {% if key ==
-              'primary' %}{{ item.primary }}{% endif %} {% if key == 'secondary'
-              %}{{ item.secondary }}{% endif %} {% if key == 'male' %}{{
-              item.male }}{% endif %} {% if key == 'female' %}{{ item.female
-              }}{% endif %} {% if key == 'other' %}{{ item.other }}{% endif %}
-              {% if key == 'total' %}{{ item.total }}{% endif %}
+              {% if key == 'date' %}
+                {{ item.date }}
+              {% elif key == 'primary' %}
+                {{ item.primary }}
+              {% elif key == 'secondary' %}
+                {{ item.secondary }}
+              {% elif key == 'male' %}
+                {{ item.male }}
+              {% elif key == 'female' %}
+                {{ item.female }}
+              {% elif key == 'other' %}
+                {{ item.other }}
+              {% elif key == 'total' %}
+                {{ item.total }}
+              {% endif %}
             </td>
             {% endfor %}
           </tr>
